@@ -10,12 +10,15 @@ if (cluster.isMaster) {
 	cluster.fork()
 
 
-	setInterval(function(){
-		if (Object.keys(cluster.workers).length === 0){
-			process.exit()
-		}
-	},30000)
 
+	cluster.on('disconnect', function(worker, code, signal) {
+		if (Object.keys(cluster.workers).length === 0){
+
+			process.exit()
+
+		}
+
+	});
 
 } else {
 
