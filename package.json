@@ -20,12 +20,19 @@
   },
   "homepage": "https://github.com/thisismattmiller/registry-ingest",
   "dependencies": {
+    "async": "^1.4.2",
     "byline": "^4.2.1",
     "cli-color": "^1.0.0",
     "config": "^1.16.0",
+    "csv": "^0.4.6",
+    "csv-parse": "^1.0.0",
+    "diacritics": "^1.2.2",
     "libxmljs": "^0.14.3",
     "mongodb": "^2.0.43",
-    "string": "^3.3.1"
+    "n3": "^0.4.5",
+    "string": "^3.3.1",
+    "string_score": "^0.1.22",
+    "word-overlap": "^2.4.0"
   },
   "devDependencies": {
     "mocha": "2.1.0",
