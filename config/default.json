@@ -22,6 +22,7 @@
       "archivesRepoObjects" : "/data/archives_repo_objects.csv",
 
       "viafExtract" : "/data/lc_triples.nt",
+      "viafExtractInsert" : "/data/viaf_lookup_data.json",
 
       "tmsObjects" : "/data/tms_objects.csv",
       "tmsTitles" : "/data/tms_titles.csv",
