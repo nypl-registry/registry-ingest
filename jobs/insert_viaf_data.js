@@ -43,7 +43,7 @@ db.prepareViafLookup(function(){
 			})		
 
 			if (count % 100000 === 0){
-				setTimeout(stream.resume,1000)
+				setTimeout(function(){ stream.resume()},1000)
 			}else{
 				stream.resume()
 			}
