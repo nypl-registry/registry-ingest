@@ -8,6 +8,13 @@
     "mongoDb" : "registry"
   },
 
+  "DbShadowcat": {
+    "mongoConnectURL" : "mongodb://shadowcat:27017/shadowcat",
+    "mongoIp" : "shadowcat",
+    "mongoPort" : 27017,
+    "mongoDb" : "shadowcat"
+  },
+
 
   "Source" : {
 
