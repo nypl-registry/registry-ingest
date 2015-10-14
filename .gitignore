@@ -3,6 +3,8 @@ logs
 *.log
 
 .DS_STORE
+./config/local.json
+
 
 # Runtime data
 pids
