@@ -5,21 +5,17 @@ var serialize = require("../lib/serialize_utils.js")
 
 
 
-// serialize.populateShadowcatAgentsViaf(function(){
+serialize.populateShadowcatAgentsViaf(function(agentId){
+
+	serialize.populateShadowcatAgentsNonViaf(agentId,function(){
 
 
 
-// 	console.log("Done")
-
-// })
-
-serialize.populateShadowcatAgentsNonViaf(103002275,function(){
-
-
-
-	console.log("Done")
+	})
 
 })
+
+
 
 
 // var cluster = require('cluster');

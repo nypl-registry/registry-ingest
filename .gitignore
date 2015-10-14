@@ -5,6 +5,7 @@ logs
 .DS_STORE
 ./config/local.json
 
+local.json
 
 # Runtime data
 pids
