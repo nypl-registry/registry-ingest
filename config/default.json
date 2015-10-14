@@ -30,6 +30,7 @@
 
       "viafExtract" : "/data/lc_triples.nt",
       "viafExtractInsert" : "/data/viaf_lookup_data.json",
+      "viafFast" : "/data/names_in_fast.nt",
 
       "tmsObjects" : "/data/tms_objects.csv",
       "tmsTitles" : "/data/tms_titles.csv",
