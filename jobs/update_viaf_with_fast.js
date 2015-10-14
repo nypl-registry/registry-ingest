@@ -23,8 +23,8 @@ db.returnCollection("viafLookup",function(err,viafLookup,database){
 
 
 
-		//process.stdout.cursorTo(0)
-		//process.stdout.write(clc.black.bgYellowBright("Updating VIAF: " + ++count ))
+		process.stdout.cursorTo(0)
+		process.stdout.write(clc.black.bgYellowBright("Updating VIAF: " + ++count ))
 
 		stream.pause()
 
