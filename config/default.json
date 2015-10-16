@@ -32,6 +32,14 @@
       "viafExtractInsert" : "/data/viaf_lookup_data.json",
       "viafFast" : "/data/names_in_fast.nt",
 
+      "fastChronological" : "/data/FASTChronological.nt",
+      "fastEvent" : "/data/FASTEvent.nt",
+      "fastFormGenre" : "/data/FASTFormGenre.nt",
+      "fastGeographic" : "/data/FASTGeographic.nt",
+      "fastTitle" : "/data/FASTTitle.nt",
+      "fastTopical" : "/data/FASTTopical.nt",
+
+
       "tmsObjects" : "/data/tms_objects.csv",
       "tmsTitles" : "/data/tms_titles.csv",
       "tmsConsituents" : "/data/tms_consituents.csv",
