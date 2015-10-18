@@ -468,6 +468,16 @@ describe('mmsUtils', function () {
 		abstracts[0].should.equal("Visual materials, including over 100,000 photographs, 5,000 set and costume designs for opera, and the Joseph Muller Collection of 6,000 fine prints of musicians' portraits from the 15th through the mid-20th centuries, provide rich documentation for all aspects of music, past and present.")
 	})
 
+  it('extractTypeOfResource', function () {
+    var xmlDoc = mmsUtils.returnXmlNode(xml1)
+    var typeOfResource = mmsUtils.extractTypeOfResource(xmlDoc)
+
+
+
+    typeOfResource[0].should.equal("notated music")
+  })
+
+
 	it('extractGenres', function () {
 		var xmlDoc = mmsUtils.returnXmlNode(xml2)
 		var genres = mmsUtils.extractGenres(xmlDoc)
