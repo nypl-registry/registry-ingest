@@ -5,13 +5,13 @@ var serialize = require("../lib/serialize_utils.js")
 
 
 
-serialize.populateShadowcatAgentsViaf(function(agentId){
+serialize.populateShadowcatTerms(function(agentId){
 
-	serialize.populateShadowcatAgentsNonViaf(agentId,function(){
+	//serialize.populateShadowcatAgentsNonViaf(agentId,function(){
 
 
 
-	})
+	//})
 
 })
 
