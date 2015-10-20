@@ -14,7 +14,7 @@ var viafExtract =  __dirname + '/..' + config['Source']['viafExtractInsert']
 var allLookup = {}
 var count = 0
 
-db.prepareViafLookup(function(){
+db.prepareViafLookup2(function(){
 
 	db.returnCollection("viafLookup2",function(err,viafLookup,database){
 
