@@ -8,14 +8,9 @@ describe('utils', function () {
 
 	it('normalizeAndDiacritics', function () {
 		utils.normalizeAndDiacritics("Voronikhina, L︠i︡udmila Nikolaevna.").should.equal("voronikhina liudmila nikolaevna")
-
+		//viaf :114935117
 
 	})
-
-
-	
-
-
 
 	it('should take funky string and lowercase remove whitespace and convert any html codes', function () {
 		utils.normalize("     Hello There  4  ").should.equal("hellothere4")

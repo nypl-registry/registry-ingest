@@ -16,7 +16,7 @@ var count = 0
 
 db.prepareViafLookup(function(){
 
-	db.returnCollection("viafLookup",function(err,viafLookup,database){
+	db.returnCollection("viafLookup2",function(err,viafLookup,database){
 
 		var stream = fs.createReadStream(viafExtract, { encoding: 'utf8' });
 		stream = byline.createStream(stream);
