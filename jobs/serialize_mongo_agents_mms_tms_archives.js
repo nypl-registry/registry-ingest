@@ -14,11 +14,20 @@ var serialize = require("../lib/serialize_utils.js")
 
 
 
-serialize.populateMmsAgentsCollections(function(){
-	serialize.populateMmsAgentsContainers(function(){
-		serialize.populateMmsAgentsItems(function(){
-			
-		})
+// serialize.populateMmsAgentsCollections(function(){
+// 	serialize.populateMmsAgentsContainers(function(){
+// 		serialize.populateMmsAgentsItems(function(){
+
+// 		})
+// 	})
+// })
+
+
+serialize.populateArchivesAgentsCollctions(function(){
+	
+	serialize.populateArchivesAgentsComponents(function(){
+	
+
 	})
 })
 
