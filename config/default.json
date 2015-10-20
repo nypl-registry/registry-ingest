@@ -69,6 +69,13 @@
       "geographicCode": "terms:Geographic" 
     },
 
+    "archivesTermTypes": 
+    { 
+      "topic": "terms:Topical",
+      "geogname": "terms:Geographic",
+      "subject": "terms:Topical",
+      "genreform": "terms:FormGenre"
+    },
 
 
 
