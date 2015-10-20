@@ -57,6 +57,23 @@
 
   "Thesaurus" : {
 
+
+    "mmsTermTypes": 
+    { 
+      "topic": "terms:Topical",
+      "geographic": "terms:Geographic",
+      "temporal": "terms:Chronological",
+      "form": "terms:FormGenre",
+      "occupation": "terms:NotUsed",
+      "titleInfo": "terms:Title" ,
+      "geographicCode": "terms:Geographic" 
+    },
+
+
+
+
+
+
   "tmsDepartments" :{
       "0": "wal",
       "1": "phg",
