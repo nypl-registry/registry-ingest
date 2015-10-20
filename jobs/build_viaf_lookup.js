@@ -92,7 +92,7 @@ stream.on('end', function () {
 	console.log("Doneeeeee")
 
 
-	var file = fs.createWriteStream('viafLookupData.txt');
+	var file = fs.createWriteStream('viaf_lookup_data.json');
 	file.on('error', function(err) { console.lof(err) })
 	var writeCounter = 0
 
