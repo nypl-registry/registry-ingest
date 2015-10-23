@@ -3,12 +3,6 @@
 
 var serialize = require("../lib/serialize_utils.js")
 
-
-
-
-
-
-
 serialize.populateArchivesTermsCollections(function(){
 
 	serialize.populateArchivesTermsComponents(function(){
