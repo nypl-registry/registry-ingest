@@ -5,20 +5,20 @@ var serialize = require("../lib/serialize_utils.js")
 
 
 
-// serialize.serializeArchives(function(agentId){
+serialize.serializeArchives(function(agentId){
 
 
 
 
-// })
+})
 
 
-serialize.serializeMmsCollections(function(agentId){
+// serialize.serializeMmsCollections(function(agentId){
 
 
 	
 
-})
+// })
 
 
 
