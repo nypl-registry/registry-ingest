@@ -27,12 +27,12 @@ var serialize = require("../lib/serialize_utils.js")
 
 // })
 
-// serialize.serializeShadowcat(function(agentId){
+serialize.serializeShadowcat(function(agentId){
 
 
 	
 
-// })
+})
 
 
 
