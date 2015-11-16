@@ -291,7 +291,9 @@
         "tmsTitles": "/data/tms_titles.csv",
         "viafExtract": "/data/lc_triples.nt",
         "viafExtractInsert": "/data/viaf_lookup_data.json",
-        "viafFast": "/data/names_in_fast.nt"
+        "viafFast": "/data/names_in_fast.nt",
+        "pdExportCsv" : "/data/pd_items.csv",
+        "pdExportJson" : "/data/pd_items.json"
     },
     "Thesaurus": {
         "archives": {
