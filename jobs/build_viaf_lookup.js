@@ -35,7 +35,7 @@ stream.on('data', function(line) {
 
 
 	process.stdout.cursorTo(0)
-	process.stdout.write(clc.black.bgYellowBright("build viaf: " + ++count + " | LC: " + countLc + " | VIAF: " + countViaf ))
+	process.stdout.write(clc.black.bgYellowBright("Build VIAF | Line count: " + ++count + " | LC: " + countLc + " | VIAF: " + countViaf ))
 
 	stream.pause()
 
@@ -75,13 +75,21 @@ stream.on('data', function(line) {
 				var key = parseInt(triple.subject.toString().match(/[0-9]{2,}/)[0])
 				
 				if (!lcData[key]){
+
+
+					lcData[key] = Object.create(null) 
+					lcData[key].prefLabel = ""
+					lcData[key].altLabel = []
+					lcData[key].viaf = false
+					lcData[key].normalized = []
+
 					countLc++
-					lcData[key] = {
-						prefLabel : "",
-						altLabel : [],
-						viaf: false,
-						normalized: []
-					}
+					// lcData[key] = {
+					// 	prefLabel : "",
+					// 	altLabel : [],
+					// 	viaf: false,
+					// 	normalized: []
+					// }
 				}
 
 			}else{
@@ -90,19 +98,22 @@ stream.on('data', function(line) {
 
 				if (!viafData[key]){
 					countViaf++
-					viafData[key] = {
-						viafName: null,
-						type: null,
-						birthDate: null,
-						deathDate: null,
-						givenName: null,
-						familyName: null,
-						description: null,
-						gender: null,
-						dbpedia:null,
-						wikidata: null,
-						isLc: false,						
-					}
+
+
+					viafData[key] = Object.create(null) 
+					
+					viafData[key].viafName = null
+					viafData[key].type = null
+					viafData[key].birthDate = null
+					viafData[key].deathDate = null
+					viafData[key].givenName = null
+					viafData[key].familyName = null
+					viafData[key].description = null
+					viafData[key].gender = null
+					viafData[key].dbpedia = null
+					viafData[key].wikidata = null
+					viafData[key].isLc = false
+
 				}
 
 			}
