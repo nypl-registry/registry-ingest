@@ -291,7 +291,7 @@
         "tmsObjConXref": "/data/tms_obj_con_xref.csv",
         "tmsObjects": "/data/tms_objects.csv",
         "tmsTitles": "/data/tms_titles.csv",
-        "viafExtract": "/data/lc_triples.nt",
+        "viafExtract": "/data/viaf_subset.nt",
         "viafExtractInsert": "/data/viaf_lookup_data.json",
         "viafFast": "/data/names_in_fast.nt"
     },

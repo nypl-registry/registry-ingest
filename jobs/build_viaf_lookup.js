@@ -15,10 +15,17 @@ var N3Util = N3.Util
 
 
 var viafExtract =  __dirname + '/..' + config['Source']['viafExtract']
+var viafExtractInsert =  __dirname + '/..' + config['Source']['viafExtractInsert']
 
-var allLookup = {}
-var count = 0
 
+
+
+var lcData = {}
+var viafData = {}
+var count = 0, countLc = 0, countViaf = 0
+var ucodeEscape = /\\u([\d\w]{4})/gi;
+var spaceEscape = /\s{2,}/g
+var agentEscape = /\/#Agent.*?>\s/g
 
 var stream = fs.createReadStream(viafExtract, { encoding: 'utf8' });
 stream = byline.createStream(stream);
@@ -28,58 +35,135 @@ stream.on('data', function(line) {
 
 
 	process.stdout.cursorTo(0)
-	process.stdout.write(clc.black.bgYellowBright("build viaf: " + ++count ))
+	process.stdout.write(clc.black.bgYellowBright("build viaf: " + ++count + " | LC: " + countLc + " | VIAF: " + countViaf ))
 
 	stream.pause()
 
+	line = line.replace(spaceEscape,'')
+
+	line = line.replace(ucodeEscape, function (match, grp) {
+	    return String.fromCharCode(parseInt(grp, 16)); } )
+
+	line = unescape(line)
+
+	line = line.replace(agentEscape,'> ')
+
+	line = line.replace('LC|','LC%7C')
+
+
+
 	parser.parse(line, function (error, triple, prefixes) {
+
+		if (error){			
+			process.stdout.cursorTo(0)
+			process.stdout.write(clc.black.bgRedBright(error))
+			console.log("\n")
+			console.log(line)
+			console.log("\n")
+			stream.resume()
+		}
 
 		//this is an iterator, but since we are only processing one triple, it will one fire once
 		if (triple){
 
-			if (triple.predicate == 'http://www.w3.org/2004/02/skos/core#prefLabel' || triple.predicate == 'http://www.w3.org/2004/02/skos/core#altLabel' || triple.predicate == 'http://xmlns.com/foaf/0.1/focus'){
+			if (triple.subject.toString().search("sourceID/LC")>-1){
+
+
+
+				//var key = triple.subject.toString().split('http://viaf.org/viaf/sourceID/LC%7C')[1].replace("#skos:Concept",'')	
+
+				var key = parseInt(triple.subject.toString().match(/[0-9]{2,}/)[0])
 				
-					var key = triple.subject.toString().split('http://viaf.org/viaf/sourceID/LC%7C')[1].replace("#skos:Concept",'')
-
-					if (!allLookup[key]){
-
-						allLookup[key] = {
-							prefLabel : "",
-							altLabel : [],
-							viaf: 0,
-							normalized: []
-						}
-						
+				if (!lcData[key]){
+					countLc++
+					lcData[key] = {
+						prefLabel : "",
+						altLabel : [],
+						viaf: false,
+						normalized: []
 					}
-
-					if (triple.predicate == 'http://www.w3.org/2004/02/skos/core#prefLabel'){
-						var literal = N3Util.getLiteralValue(triple.object)
-						allLookup[key].prefLabel = literal
-
-						allLookup[key].normalized.push(utils.normalizeAndDiacritics(literal))
-
-
-					}else if (triple.predicate == 'http://www.w3.org/2004/02/skos/core#altLabel'){
-						var literal = N3Util.getLiteralValue(triple.object)
-						allLookup[key].altLabel.push( literal)
-
-						allLookup[key].normalized.push(utils.normalizeAndDiacritics(literal))
-
-					}else if (triple.predicate == 'http://xmlns.com/foaf/0.1/focus'){
-						allLookup[key].viaf = parseInt(triple.object.toString().split('/viaf/')[1])
-					}
-					
-				
-
-					
-
-					stream.resume()
-					return true
+				}
 
 			}else{
+
+				var key = parseInt(triple.subject.toString().split("/viaf/")[1].split("/")[0])
+
+				if (!viafData[key]){
+					countViaf++
+					viafData[key] = {
+						viafName: null,
+						type: null,
+						birthDate: null,
+						deathDate: null,
+						givenName: null,
+						familyName: null,
+						description: null,
+						gender: null,
+						dbpedia:null,
+						wikidata: null,
+						isLc: false,						
+					}
+				}
+
+			}
+
+			if (triple.predicate == 'http://www.w3.org/2004/02/skos/core#prefLabel'){
+				var literal = N3Util.getLiteralValue(triple.object)
+				lcData[key].prefLabel = literal
+				lcData[key].normalized.push(utils.normalizeAndDiacritics(literal))
+			}else if (triple.predicate == 'http://www.w3.org/2004/02/skos/core#altLabel'){
+				var literal = N3Util.getLiteralValue(triple.object)
+				lcData[key].altLabel.push( literal)
+				lcData[key].normalized.push(utils.normalizeAndDiacritics(literal))
+			}else if (triple.predicate == 'http://xmlns.com/foaf/0.1/focus'){
+				lcData[key].viaf = parseInt(triple.object.toString().split('/viaf/')[1])
+			}else if (triple.predicate == 'http://schema.org/name'){
+				var literal = N3Util.getLiteralValue(triple.object)
+				viafData[key].viafName = literal
+			}else if (triple.predicate == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' && viafData[key]){	
+				viafData[key].type = triple.object.toString().split('schema.org/')[1]
+			}else if (triple.predicate == 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type' && !viafData[key]){	
+				//this is just the LC data saying it is a concept, don't care
+
+			}else if (triple.predicate == 'http://schema.org/birthDate'){
+				var literal = N3Util.getLiteralValue(triple.object)
+				viafData[key].birthDate = literal
+			}else if (triple.predicate == 'http://schema.org/givenName'){
+				var literal = N3Util.getLiteralValue(triple.object)
+				viafData[key].givenName = literal
+			}else if (triple.predicate == 'http://schema.org/familyName'){
+				var literal = N3Util.getLiteralValue(triple.object)
+				viafData[key].familyName = literal
+			}else if (triple.predicate == 'http://schema.org/description'){
+				var literal = N3Util.getLiteralValue(triple.object)
+				viafData[key].description = literal
+			}else if (triple.predicate == 'http://schema.org/deathDate'){
+				var literal = N3Util.getLiteralValue(triple.object)
+				viafData[key].deathDate = literal
+			}else if (triple.predicate == 'http://schema.org/gender'){
+				viafData[key].gender = triple.object.toString()
+				if (viafData[key].gender === 'http://www.wikidata.org/entity/m') viafData[key].gender = 'm'
+				if (viafData[key].gender === 'http://www.wikidata.org/entity/Q6581097') viafData[key].gender = 'm'
+				if (viafData[key].gender === 'http://www.wikidata.org/entity/Q6581072') viafData[key].gender = 'f'
+				if (viafData[key].gender === 'http://www.wikidata.org/entity/f') viafData[key].gender = 'f'
+				if (viafData[key].gender.length>1) console.log(viafData[key].gender)
+			}else if (triple.predicate == 'http://schema.org/sameAs'){
+
+				if (triple.object.toString().search(/dbpedia/)>-1){
+					viafData[key].dbpedia = triple.object.toString().replace('http://dbpedia.org/resource/','')
+				}else{
+					viafData[key].wikidata = triple.object.toString().replace('http://www.wikidata.org/entity/','')
+				}
+
+			}else if (triple.predicate == 'http://www.w3.org/2004/02/skos/core#inScheme'){		
+				//we don't care about this predicate
+			}else{
+				console.log(triple.predicate.toString())
+			}
+
+			process.nextTick(function(){
 				stream.resume()
-				return true
-			}				
+			})
 		
 		}	
 
@@ -88,16 +172,30 @@ stream.on('data', function(line) {
 
 
 
-stream.on('end', function () {
+stream.on('finish', function () {
 	console.log("Doneeeeee")
 
 
-	var file = fs.createWriteStream('viaf_lookup_data.json');
+	var file = fs.createWriteStream(viafExtractInsert);
 	file.on('error', function(err) { console.lof(err) })
+
 	var writeCounter = 0
 
-	for (var x in allLookup){
-		file.write(JSON.stringify(allLookup[x]) + "\n")
+	//loop through the LC data and add it to the big VIAF data
+	for (var x in lcData){
+		if (lcData[x].viaf){
+			if (viafData[lcData[x].viaf]){
+				viafData[lcData[x].viaf].isLc = true
+				viafData[lcData[x].viaf].prefLabel = lcData[x].prefLabel
+				viafData[lcData[x].viaf].altLabel = lcData[x].altLabel
+				viafData[lcData[x].viaf].lcId = x
+				viafData[lcData[x].viaf].normalized = lcData[x].normalized
+			}
+		}
+	}
+
+	for (var x in viafData){
+		file.write(JSON.stringify(viafData[x]) + "\n")
 		process.stdout.cursorTo(50)
 		process.stdout.write(clc.black.bgBlueBright("write viaf: " + ++writeCounter ))
 
