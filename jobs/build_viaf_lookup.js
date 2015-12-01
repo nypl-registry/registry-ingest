@@ -44,26 +44,23 @@ stream.on('data', function(line) {
 
 	var xmlDoc = viafParse.parseXml(xml)
 
-	var agent = {
+	var agent = Object.create(null)
+	agent._id =  viafId
+	agent.sourceCount =  viafParse.extractSourceCount(xmlDoc)
+	agent.type =  viafParse.extractType(xmlDoc)
+	agent.hasLc =  viafParse.hasLc(xmlDoc)
+	agent.hasDbn =  viafParse.hasLc(xmlDoc)
+	agent.lcId =  viafParse.extractLcId(xmlDoc)
+	agent.gettyId =  viafParse.extractGettyId(xmlDoc)
+	agent.wikidataId =  viafParse.extractWikidataId(xmlDoc)
+	agent.lcTerm =  viafParse.extractLcTerm(xmlDoc)
+	agent.dnbTerm =  viafParse.extractDnbTerm(xmlDoc)
+	agent.viafTerm =  viafParse.extractViafTerm(xmlDoc)
+	agent.birth =  viafParse.extractBirth(xmlDoc)
+	agent.death =  viafParse.extractDeath(xmlDoc)
+	agent.dbpediaId =  viafParse.extractDbpediaId(xmlDoc)
+	agent.normalized =  []
 
-		_id: viafId,
-		sourceCount: viafParse.extractSourceCount(xmlDoc),
-		type: viafParse.extractType(xmlDoc),
-		hasLc: viafParse.hasLc(xmlDoc),
-		hasDbn: viafParse.hasLc(xmlDoc),
-		lcId: viafParse.extractLcId(xmlDoc),
-		gettyId: viafParse.extractGettyId(xmlDoc),
-		wikidataId: viafParse.extractWikidataId(xmlDoc),
-		lcTerm: viafParse.extractLcTerm(xmlDoc),
-		dnbTerm: viafParse.extractDnbTerm(xmlDoc),
-		viafTerm: viafParse.extractViafTerm(xmlDoc),
-		birth: viafParse.extractBirth(xmlDoc),
-		death: viafParse.extractDeath(xmlDoc),
-		dbpediaId: viafParse.extractDbpediaId(xmlDoc),
-		normalized: []
-
-
-	}
 
 	if (agent.birth == "0") agent.birth = false
 	if (agent.death == "0") agent.death = false
@@ -82,12 +79,46 @@ stream.on('data', function(line) {
 		if (agent.normalized.indexOf(n)===-1) agent.normalized.push(n)
 	}
 
-	output.write(JSON.stringify(agent)+"\n")
+	var r = output.write(JSON.stringify(agent)+"\n", "utf8")
 
-	process.nextTick(function(){
-		stream.resume()
-		agent=null
-	})
+	
+
+	if (!r){
+
+		output.once('drain', function(){
+
+			agent = null
+			line = null
+			xml = null
+			xmlDoc = null
+
+			process.nextTick(function(){				
+				stream.resume()	
+			})
+
+		})
+
+	}else{
+
+		agent = null
+		line = null
+		xml = null
+		xmlDoc = null
+
+		process.nextTick(function(){
+			stream.resume()	
+		})
+
+
+	}
+
+
+	// process.nextTick(function(){
+				
+	// })
+
+
+
 
 	//console.log(viafParse.parseXml(xml))
 
@@ -235,8 +266,11 @@ stream.on('data', function(line) {
 
 
 
-stream.on('finish', function () {
+stream.on('end', function () {
 	console.log("Doneeeeee")
+
+
+	// output.write(null)
 
 
 	// var file = fs.createWriteStream(viafExtractInsert);
@@ -263,6 +297,9 @@ stream.on('finish', function () {
 	// 	process.stdout.write(clc.black.bgBlueBright("write viaf: " + ++writeCounter ))
 
 	// }
-	output.end()
+
+	// output.once('drain', function(){
+	// 	output.end()
+	// })
 
 })
