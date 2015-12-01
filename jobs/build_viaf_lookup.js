@@ -84,7 +84,10 @@ stream.on('data', function(line) {
 
 	output.write(JSON.stringify(agent)+"\n")
 
-	stream.resume()
+	process.nextTick(function(){
+		stream.resume()
+		agent=null
+	})
 
 	//console.log(viafParse.parseXml(xml))
 
