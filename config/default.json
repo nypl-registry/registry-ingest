@@ -292,7 +292,7 @@
         "tmsObjects": "/data/tms_objects.csv",
         "tmsTitles": "/data/tms_titles.csv",
         "viafExtract": "/data/viaf-20151102-clusters.xml",
-        "viafExtractInsert": "/data/viaf_lookup_data.json",
+        "viafExtractInsertSource": "/data/viaf_lookup_data_source.json",
         "viafFast": "/data/names_in_fast.nt"
     },
     "Thesaurus": {

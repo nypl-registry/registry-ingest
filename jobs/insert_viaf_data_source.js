@@ -9,14 +9,14 @@ var utils = require("../lib/utils.js")
 var clc = require('cli-color')
 
 
-var viafExtract =  __dirname + '/..' + config['Source']['viafExtractInsert']
+var viafExtract =  __dirname + '/..' + config['Source']['viafExtractInsertSource']
 
 var allLookup = {}
 var count = 0
 
-db.prepareViafLookup2(function(){
+db.prepareViafLookup(function(){
 
-	db.returnCollection("viafLookup2",function(err,viafLookup,database){
+	db.returnCollection("viaf",function(err,viaf,database){
 
 		var stream = fs.createReadStream(viafExtract, { encoding: 'utf8' });
 		stream = byline.createStream(stream);
@@ -30,16 +30,18 @@ db.prepareViafLookup2(function(){
 			process.stdout.cursorTo(0)
 			process.stdout.write(clc.black.bgYellowBright("insert viaf: " + ++count ))
 
+
 			var updateRecord = JSON.parse(line)
 
-			updateRecord._id = updateRecord.viaf
-			delete updateRecord.viaf
+			updateRecord.hasLc = false
+			updateRecord.hasDbn = false
 
-			viafLookup.update({ _id : updateRecord._id }, { $set: updateRecord }, { upsert: true} , function(err, result) {
-				
+			if (updateRecord.lcId) updateRecord.hasLc = true
+			if (updateRecord.dnbTerm) updateRecord.hasDbn = true
+
+			viaf.update({ _id : updateRecord._id }, { $set: updateRecord }, { upsert: true} , function(err, result) {				
 				if (err) console.log(err)
 				return true
-
 			})		
 
 			if (count % 10000 === 0){
@@ -57,7 +59,6 @@ db.prepareViafLookup2(function(){
 
 			console.log("Doneeeeee")	
 			setTimeout(function(){
-
 				database.close()
 			},130000)		
 			

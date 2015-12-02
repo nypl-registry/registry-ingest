@@ -561,14 +561,14 @@ describe('mmsUtils', function () {
 
 
 	})
-  it('extractMmsHashRights', function () {
+  it('extractMmsHashRightsAgents', function () {
 
-    var mmsHashRights = mmsUtils.extractMmsHashRights(mmsHashRecord)
+    var mmsHashRights = mmsUtils.extractMmsHashRightsAgents(mmsHashRecord)
 
-
-    // collectionAndContainer.parents[0].should.equal("caf53850-7a74-0132-1b13-58d385a7b928")
-    // collectionAndContainer.collection.should.equal("9ccb18b0-7a74-0132-a7b1-58d385a7b928")
-    // collectionAndContainer.container.should.equal("caf53850-7a74-0132-1b13-58d385a7b928")
+    mmsHashRights.creators[0].namePart.should.equal('Yeats, Jack Butler')
+    mmsHashRights.holders[0].namePart.should.equal('Artists Rights Society, Inc.')
+    mmsHashRights.donor.should.equal('Matt Miller')
+    
 
 
   })
