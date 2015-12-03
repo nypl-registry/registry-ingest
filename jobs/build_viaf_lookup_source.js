@@ -69,15 +69,15 @@ stream.on('data', function(line) {
 
 	if (agent.lcTerm){
 		var n = utils.normalizeAndDiacritics(agent.lcTerm)
-		if (agent.normalized.indexOf(n)===-1) agent.normalized.push(n)
+		if (n.length>2) if (agent.normalized.indexOf(n)===-1) agent.normalized.push(n)
 	}
 	if (agent.dnbTerm){
 		var n = utils.normalizeAndDiacritics(agent.dnbTerm)
-		if (agent.normalized.indexOf(n)===-1) agent.normalized.push(n)
+		if (n.length>2) if (agent.normalized.indexOf(n)===-1) agent.normalized.push(n)
 	}
 	if (agent.viafTerm){
 		var n = utils.normalizeAndDiacritics(agent.viafTerm)
-		if (agent.normalized.indexOf(n)===-1) agent.normalized.push(n)
+		if (n.length>2) if (agent.normalized.indexOf(n)===-1) agent.normalized.push(n)
 	}
 
 	agent.normalized.forEach(function(n){
