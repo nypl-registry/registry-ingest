@@ -83,7 +83,7 @@ stream.on('data', function(line) {
 
 	var r = true
 
-	if (agent.type != 'UniformTitleWork'){
+	if (agent.type != 'UniformTitleWork' && agent.type != 'UniformTitleExpression'){
 
 
 		agent.normalized.forEach(function(n){
