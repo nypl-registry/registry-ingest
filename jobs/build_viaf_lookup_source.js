@@ -19,7 +19,7 @@ var N3Util = N3.Util
 var viafExtract =  __dirname + '/..' + config['Source']['viafExtract']
 var viafExtractInsert =  __dirname + '/..' + config['Source']['viafExtractInsertSource']
 
-
+var okayRegTest = /^[a-zA-Z\s0123456789]*$/
 
 var count = 0
 
@@ -79,6 +79,13 @@ stream.on('data', function(line) {
 		var n = utils.normalizeAndDiacritics(agent.viafTerm)
 		if (agent.normalized.indexOf(n)===-1) agent.normalized.push(n)
 	}
+
+	agent.normalized.forEach(function(n){
+		if (n.search(okayRegTest)===-1){
+			console.log("Regex Error:")
+			console.log(agent)
+		}
+	})
 
 	var r = output.write(JSON.stringify(agent)+"\n", "utf8")
 
