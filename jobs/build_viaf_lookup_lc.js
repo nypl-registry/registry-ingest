@@ -82,17 +82,12 @@ stream.on('data', function(line) {
 				// var key = parseInt(triple.subject.toString().match(/[0-9]{2,}/)[0])
 
 				var key = triple.subject.toString().replace("http://viaf.org/viaf/sourceID/LC%7C","").replace(/\++/,'').replace("#skos:Concept","")
-
-
 				
 				if (!lcData[key]){
-
-
 					lcData[key] = Object.create(null) 
 					lcData[key]._id = key
 					lcData[key].normalized = []
 					lcData[key].lcAlt = []
-
 				}
 
 			}
@@ -172,7 +167,7 @@ stream.on('data', function(line) {
 
 
 
-stream.on('end', function () {
+stream.on('finish', function () {
 	console.log("Doneeeeee")
 
 
