@@ -29,6 +29,7 @@ stream = byline.createStream(stream);
 var output = fs.createWriteStream(viafExtractInsert, {'flags': 'w'}).end("")
 var output = fs.createWriteStream(viafExtractInsert, {'flags': 'a'})
 
+console.log("Writing to:",viafExtractInsert)
 
 stream.on('data', function(line) {
 
