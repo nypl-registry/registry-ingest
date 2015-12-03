@@ -167,7 +167,7 @@ stream.on('data', function(line) {
 
 
 
-stream.on('finish', function () {
+stream.on('end', function () {
 	console.log("Doneeeeee")
 
 

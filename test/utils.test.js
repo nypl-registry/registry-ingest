@@ -5,11 +5,12 @@ var utils = require("../lib/utils.js");
 
 describe('utils', function () {
 
+	it('normalizeAndDiacritics', function () {
+		utils.normalizeAndDiacritics("González Hernández, Rafael").should.equal("gonzalez hernandez rafael")
+	})
 
 	it('normalizeAndDiacritics', function () {
 		utils.normalizeAndDiacritics("Voronikhina, L︠i︡udmila Nikolaevna.").should.equal("voronikhina liudmila nikolaevna")
-		//viaf :114935117
-
 	})
 
 	it('should take funky string and lowercase remove whitespace and convert any html codes', function () {
