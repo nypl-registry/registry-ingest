@@ -80,16 +80,24 @@ stream.on('data', function(line) {
 		if (n.length>2) if (agent.normalized.indexOf(n)===-1) agent.normalized.push(n)
 	}
 
-	agent.normalized.forEach(function(n){
-		if (n.search(okayRegTest)===-1){
-			console.log("Regex Error:")
-			console.log(agent)
-		}
-	})
-
-
 	if (agent.type != 'UniformTitleWork'){
+
+
+		agent.normalized.forEach(function(n){
+			if (n.search(okayRegTest)===-1){
+				console.log("Regex Error:")
+				console.log(agent)
+			}
+		})
+		
+
+
 		var r = output.write(JSON.stringify(agent)+"\n", "utf8")
+
+
+
+
+
 	}
 	
 
