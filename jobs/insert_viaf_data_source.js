@@ -14,7 +14,7 @@ var viafExtract =  __dirname + '/..' + config['Source']['viafExtractInsertSource
 var allLookup = {}
 var count = 0
 
-db.prepareViafLookup(function(){
+//db.prepareViafLookup(function(){
 
 	db.returnCollection("viaf",function(err,viaf,database){
 
@@ -66,6 +66,6 @@ db.prepareViafLookup(function(){
 
 	})
 
-})
+//})
 
 
