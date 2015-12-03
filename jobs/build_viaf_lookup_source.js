@@ -17,7 +17,7 @@ var N3Util = N3.Util
 
 
 var viafExtract =  __dirname + '/..' + config['Source']['viafExtract']
-var viafExtractInsert =  __dirname + '/..' + config['Source']['viafExtractInsert']
+var viafExtractInsert =  __dirname + '/..' + config['Source']['viafExtractInsertSource']
 
 
 
