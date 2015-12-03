@@ -87,8 +87,10 @@ stream.on('data', function(line) {
 		}
 	})
 
-	var r = output.write(JSON.stringify(agent)+"\n", "utf8")
 
+	if (agent.type != 'UniformTitleWork'){
+		var r = output.write(JSON.stringify(agent)+"\n", "utf8")
+	}
 	
 
 	if (!r){
