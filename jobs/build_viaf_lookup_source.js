@@ -79,6 +79,9 @@ stream.on('data', function(line) {
 		var n = utils.normalizeAndDiacritics(agent.viafTerm)
 		if (n.length>2) if (agent.normalized.indexOf(n)===-1) agent.normalized.push(n)
 	}
+	
+
+	var r = true
 
 	if (agent.type != 'UniformTitleWork'){
 
@@ -89,10 +92,10 @@ stream.on('data', function(line) {
 				console.log(agent)
 			}
 		})
-		
 
 
-		var r = output.write(JSON.stringify(agent)+"\n", "utf8")
+
+		r = output.write(JSON.stringify(agent)+"\n", "utf8")
 
 
 
