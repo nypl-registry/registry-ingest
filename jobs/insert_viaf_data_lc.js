@@ -22,7 +22,7 @@ db.returnCollection("viaf",function(err,viaf,database){
 
 	stream.on('data', function(line) {
 
-		// stream.pause()
+		stream.pause()
 
 		process.stdout.cursorTo(0)
 		process.stdout.write(clc.black.bgYellowBright("insert viaf: " + ++count + " | update: " + updated ))
