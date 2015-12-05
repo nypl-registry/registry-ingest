@@ -56,6 +56,7 @@ db.returnCollection("viaf",function(err,viaf,database){
 				viaf.update({ _id : record._id }, { $set: record }, function(err, result) {	
 					console.log(record._id)			
 					if (err) console.log(err)
+					updated++
 					return true
 				})	
 			}
