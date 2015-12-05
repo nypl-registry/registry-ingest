@@ -11,7 +11,7 @@ var clc = require('cli-color')
 
 var viafExtract =  __dirname + '/..' + config['Source']['viafExtractInsertLc']
 
-var count = 0
+var count = 0, updated = 0
 
 
 db.returnCollection("viaf",function(err,viaf,database){
@@ -25,7 +25,7 @@ db.returnCollection("viaf",function(err,viaf,database){
 		// stream.pause()
 
 		process.stdout.cursorTo(0)
-		process.stdout.write(clc.black.bgYellowBright("insert viaf: " + ++count ))
+		process.stdout.write(clc.black.bgYellowBright("insert viaf: " + ++count + " | update: " + updated ))
 
 		var lcData = JSON.parse(line)
 
@@ -52,8 +52,9 @@ db.returnCollection("viaf",function(err,viaf,database){
 			}
 
 			if (update){
-				console.log(record._id)
-				viaf.update({ _id : record._id }, { $set: record }, function(err, result) {				
+				
+				viaf.update({ _id : record._id }, { $set: record }, function(err, result) {	
+					console.log(record._id)			
 					if (err) console.log(err)
 					return true
 				})	
@@ -65,7 +66,7 @@ db.returnCollection("viaf",function(err,viaf,database){
 
 		process.nextTick(function(){
 			if (count % 1000 === 0){
-				setTimeout(function(){ stream.resume()},500)
+				setTimeout(function(){ stream.resume()},1000)
 			}else{
 				stream.resume()
 			}
