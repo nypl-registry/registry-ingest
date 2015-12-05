@@ -33,11 +33,6 @@ db.prepareViafLookup(function(){
 
 			var updateRecord = JSON.parse(line)
 
-			updateRecord.hasLc = false
-			updateRecord.hasDbn = false
-
-			if (updateRecord.lcId) updateRecord.hasLc = true
-			if (updateRecord.dnbTerm) updateRecord.hasDbn = true
 
 			viaf.update({ _id : updateRecord._id }, { $set: updateRecord }, { upsert: true} , function(err, result) {				
 				if (err) console.log(err)
@@ -45,7 +40,7 @@ db.prepareViafLookup(function(){
 			})		
 
 			if (count % 10000 === 0){
-				setTimeout(function(){ stream.resume()},5000)
+				setTimeout(function(){ stream.resume()},2500)
 			}else{
 				stream.resume()
 			}

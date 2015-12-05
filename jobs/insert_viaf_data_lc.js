@@ -19,41 +19,58 @@ db.returnCollection("viaf",function(err,viaf,database){
 	var stream = fs.createReadStream(viafExtract, { encoding: 'utf8' });
 	stream = byline.createStream(stream);
 
+
 	stream.on('data', function(line) {
 
-		stream.pause()
+		// stream.pause()
 
 		process.stdout.cursorTo(0)
 		process.stdout.write(clc.black.bgYellowBright("insert viaf: " + ++count ))
 
-		var updateRecord = JSON.parse(line)
+		var lcData = JSON.parse(line)
 
 
 		//grab the record from viaf
-		viaf.find({lcId: updateRecord._id}).toArray(function(error,record){
+		viaf.find({lcId: lcData._id}).toArray(function(error,record){
 
+			var update = false
 
-			console.log(record)
+			if (record.length>0){	
 
-			if (count % 10000 === 0){
-				setTimeout(function(){ stream.resume()},5000)
-			}else{
-				stream.resume()
+				record = record[0]
+				lcData.normalized.forEach(function(normal){
+					if (record.normalized.indexOf(normal) == -1){
+						if (normal.length>3){
+							if (isNaN(parseInt(normal))){
+								record.normalized.push(normal)
+								record.lcAlt = lcData.lcAlt
+								update = true
+							}
+						}
+					}
+				})
 			}
+
+			if (update){
+				console.log(record._id)
+				viaf.update({ _id : record._id }, { $set: record }, function(err, result) {				
+					if (err) console.log(err)
+					return true
+				})	
+			}
+
 
 
 		})
 
-		// updateRecord.hasLc = false
-		// updateRecord.hasDbn = false
+		process.nextTick(function(){
+			if (count % 1000 === 0){
+				setTimeout(function(){ stream.resume()},500)
+			}else{
+				stream.resume()
+			}
 
-		// if (updateRecord.lcId) updateRecord.hasLc = true
-		// if (updateRecord.dnbTerm) updateRecord.hasDbn = true
-
-		// viaf.update({ _id : updateRecord._id }, { $set: updateRecord }, { upsert: true} , function(err, result) {				
-		// 	if (err) console.log(err)
-		// 	return true
-		// })		
+		})
 
 
 
