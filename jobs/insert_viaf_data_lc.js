@@ -16,9 +16,8 @@ var count = 0, updated = 0
 
 db.returnCollection("viaf",function(err,viaf,database){
 
-	var stream = fs.createReadStream(viafExtract, { encoding: 'utf8' });
-	stream = byline.createStream(stream);
-
+	var stream = fs.createReadStream(viafExtract, { encoding: 'utf8' })
+	stream = byline.createStream(stream)
 
 	stream.on('data', function(line) {
 
@@ -51,10 +50,8 @@ db.returnCollection("viaf",function(err,viaf,database){
 				})
 			}
 
-			if (update){
-				
+			if (update){				
 				viaf.update({ _id : record._id }, { $set: record }, function(err, result) {	
-					console.log(record._id)			
 					if (err) console.log(err)
 					updated++
 					return true
@@ -62,32 +59,24 @@ db.returnCollection("viaf",function(err,viaf,database){
 			}
 
 
-
 		})
 
 		process.nextTick(function(){
-			if (count % 1000 === 0){
+			if (count % 1000 === 0 && updated > 0){
 				setTimeout(function(){ stream.resume()},1000)
 			}else{
 				stream.resume()
 			}
 
-		})
-
-
-
-		
+		})		
 
 	})
 
 	stream.on('end', function () {
-
-
 		console.log("Doneeeeee")	
 		setTimeout(function(){
 			database.close()
-		},130000)		
-		
+		},130000)	
 	})
 
 })
