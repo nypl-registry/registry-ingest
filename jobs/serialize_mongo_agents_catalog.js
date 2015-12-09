@@ -88,9 +88,21 @@ if (cluster.isMaster) {
 
 
 	var async = require("async")
+	var workedInLastMin = false
+	var activeData = null
+
+	setInterval(function(){
+		if (!workedInLastMin){
+			console.log('Worker #',cluster.worker.id, " I havent worked in the last min: ",activeData)
+		}else{
+			workedInLastMin = false
+		}
+	},60000)
 
 
 	var processAgent = function(msg) {
+
+		workedInLastMin = true
 
 		if (msg.sleep){
 			console.log('Worker #',cluster.worker.id," No work! Going to sleep for 300 sec ")
@@ -111,6 +123,8 @@ if (cluster.isMaster) {
 
 			var scAgents = msg.req[0].agents
 
+			activeData = msg.req[0]
+
 			async.eachSeries(scAgents, function(agent, eachCallback) {
 
 				var aAgent = JSON.parse(JSON.stringify(agent))
@@ -130,18 +144,14 @@ if (cluster.isMaster) {
 							
 							if (updateAgent.nameControlled){
 								updateAgent.nameControlled = updateAgent.nameControlled.trim() 
-
 								serializeGeneral.addAgentByViaf(updateAgent,function(){
 									eachCallback()
 								})	
 							}else{
 								//If there is no controlled name we do not want to use it
-							}						
-
-
-							process.send({ countTotal: true })
-
-			
+								eachCallback()
+							}
+							process.send({ countTotal: true })			
 						})
 					})	
 				}else{
