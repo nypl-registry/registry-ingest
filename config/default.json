@@ -1,4 +1,7 @@
 {
+
+    "AskBeforeDeleting": true,
+
     "Db": {
         "mongoConnectURL": "mongodb://localhost:27017/registry",
         "mongoDb": "registry",

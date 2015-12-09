@@ -1,116 +1,163 @@
 "use strict"
 
-
-var serialize = require("../lib/serialize_utils.js")
-
-
-
-serialize.populateShadowcatAgentsViaf(function(agentId){
-
-	serialize.populateShadowcatAgentsNonViaf(agentId,function(){
+var cluster = require('cluster')
+var serialize = require("../lib/serialize_catalog_agents_utils.js")
+var serializeGeneral = require("../lib/serialize_utils.js")
 
 
 
-	})
-
-})
-
-
-
-
-// var cluster = require('cluster');
-
-// if (cluster.isMaster) {
-
-// 	// cluster.fork()
-// 	// cluster.fork()
-// 	// cluster.fork()
-// 	// cluster.fork()
-
-// 	// cluster.on('disconnect', function(worker, code, signal) {
-
-// 	// 	if (Object.keys(cluster.workers).length === 1){
-// 	// 		var mmsIngestPrune = require("../lib/mss_ingest_prune.js")
-			
-// 	// 		console.log("Pruning collections w/ out captures")
-// 	// 		mmsIngestPrune.pruneCollectionsWithoutCaptures(function(err,results){
-
-// 	// 			console.log("Pruning containers w/ out captures")
-// 	// 			mmsIngestPrune.pruneContainersWithoutCaptures(function(err,results){
-
-// 	// 				console.log("Pruning items w/ out captures")
-
-// 	// 				mmsIngestPrune.pruneItemsWithoutCaptures(function(err,results){
-
-
-// 	// 					console.log("Pruning manually defined collections")
-						
-// 	// 					mmsIngestPrune.pruneIgnoreCollections(function(err,results){
-
-// 	// 						console.log("Removing items that have an invalid container.")
-
-// 	// 						mmsIngestPrune.pruneItemsWithInvalidContainer(function(err,results){
-							
-// 	// 							process.exit()
-
-// 	// 						})
-
-// 	// 					})
-// 	// 				})
-// 	// 			})
-// 	// 		})
-// 	// 	}
-// 	// });	
-
-
+if (cluster.isMaster) {
 
 	
+	var countBibRecords = 0, countTotal = 0
+
+	console.log("Initializing shadowcat agent Queue")
+
+	serialize.populateShadowcatAgentsBuildQueue(function(){
+
+		console.log("Finding Starting Agent Id")
+		serializeGeneral.returnMaxAgentId(function(agentId){
+
+			console.log("Using",agentId)
+
+			//console.log(serialize.shadowCatAgentsQueue[0])
+
+			var spawnTimer = setInterval(function(){
+				if (Object.keys(cluster.workers).length==8){
+					clearInterval(spawnTimer)
+				}else{
+
+
+					var worker = cluster.fork()
+					console.log("Spawing worker:",Object.keys(cluster.workers).length)
+
+					worker.on('message', function(msg) {
+
+						if (serialize.shadowCatAgentsQueue[0]===null){
+							//that is it, we've reached the end
+							worker.send({ quit: true })
+							if (Object.keys(cluster.workers).length==0){
+								console.log("Finished Working records.")
+								process.exit()
+							}
+
+							return false
+						}
 
 
 
-					
+						if (msg.req) {
+							//console.log("serialize.shadowCatAgentsQueue.length:",serialize.shadowCatAgentsQueue.length)
+							//they are asking for new work							
+							if (serialize.shadowCatAgentsQueue.length>0){
+								worker.send({ req: serialize.shadowCatAgentsQueue.splice(0,1) })
+							}else{
+								console.log("Nothing left to work in the queue!")
+								worker.send({ sleep: true })
+							}
+						}
+
+						if (msg.countBibRecords) {
+							countBibRecords++
+						}
+						if (msg.countTotal) {
+							countTotal++
+						}
+
+						process.stdout.clearLine()
+						process.stdout.cursorTo(0)
+						process.stdout.write("Terms | countBibRecords: " + countBibRecords + " countTotal: " + countTotal )
 
 
-// } else {
+					})
+
+				}
+			},1000)
+
+
+
+			//setup request
 
 
 
 
-// 	// if (cluster.worker.id == 1){
 
-// 	// 	var mmsCollectionIngest = require("../lib/mss_ingest_collections.js")
-// 	// 	mmsCollectionIngest.ingest(function(err,results){
-// 	// 		console.log("Ingesting collections done")
-// 	// 		cluster.worker.disconnect()
-// 	// 	})
-
-// 	// }else if (cluster.worker.id == 2){
-
-// 	// 	var mmsContainerIngest = require("../lib/mss_ingest_containers.js")
-// 	// 	mmsContainerIngest.ingest(function(err,results){
-// 	// 		console.log("Ingesting containers done")
-// 	// 		cluster.worker.disconnect()
-// 	// 	})
+		})
+	})
 
 
-// 	// }else if (cluster.worker.id == 3){
-
-// 	// 	var mmsItemsIngest = require("../lib/mss_ingest_items.js")
-// 	// 	mmsItemsIngest.ingest(function(err,results){
-// 	// 		console.log("Ingesting items done")
-// 	// 		cluster.worker.disconnect()
-// 	// 	})
-
-// 	// }else if (cluster.worker.id == 4){
+}else{
 
 
-// 	// 	var mmsCapturesIngest = require("../lib/mss_ingest_captures.js")
-// 	// 	mmsCapturesIngest.ingest(function(err,results){
-// 	// 		console.log("Ingesting captures done")
-// 	// 		cluster.worker.disconnect()
-// 	// 	})
-
-// 	// }
+	var async = require("async")
 
 
-// }
+	var processAgent = function(msg) {
+
+		if (msg.sleep){
+			console.log('Worker #',cluster.worker.id," No work! Going to sleep for 300 sec ")
+			setTimeout(function(){process.send({ req: true });},30000)
+			return true
+		}
+
+		if (msg.quit){
+			console.log('Worker #',cluster.worker.id," Done, quiting ")
+			process.exit()
+			return true
+		}
+
+
+		process.send({ countBibRecords: true })
+
+		if (msg.req[0].agents.length>0){
+
+			var scAgents = msg.req[0].agents
+
+			async.eachSeries(scAgents, function(agent, eachCallback) {
+
+				var aAgent = JSON.parse(JSON.stringify(agent))
+				var newAgent = {}
+
+				serializeGeneral.returnViafData(aAgent.viaf, function(viaf){
+
+					serializeGeneral.returnAgentByViaf(aAgent.viaf, function(savedAgent){
+
+						//console.log(msg.req[0].bnumber)
+						var updateAgent = serialize.mergeScAgentViafRegistryAgent(aAgent,viaf,savedAgent)
+						updateAgent.useCount++
+						updateAgent.source = "catalog"+msg.req[0].bnumber
+
+						process.send({ countTotal: true })
+
+						serializeGeneral.addAgentByViaf(updateAgent,function(){
+							eachCallback()
+						})				
+					})
+				})				
+
+			}, function(err){
+			   	if (err) console.log(err)
+
+			   	//done
+				process.nextTick(function(){	
+					process.send({ req: true })
+				})		
+
+			})
+
+		}else{
+		   	//done
+			process.nextTick(function(){	
+				process.send({ req: true })
+			})
+		}
+
+
+	} 
+
+
+	process.on('message', processAgent)
+	process.send({ req: true });
+
+}
+
