@@ -19,28 +19,26 @@ if (cluster.isMaster) {
 		serializeGeneral.returnMaxAgentId(function(agentId){
 
 			console.log("Using",agentId)
-
 			//console.log(serialize.shadowCatAgentsQueue[0])
 
 			var spawnTimer = setInterval(function(){
-				if (Object.keys(cluster.workers).length==8){
+				if (Object.keys(cluster.workers).length==10){
 					clearInterval(spawnTimer)
 				}else{
 
-
 					var worker = cluster.fork()
-					console.log("Spawing worker:",Object.keys(cluster.workers).length)
-
 					worker.on('message', function(msg) {
 
 						if (serialize.shadowCatAgentsQueue[0]===null){
+							console.log("Sendiing QUIT msg",Object.keys(cluster.workers).length)
 							//that is it, we've reached the end
 							worker.send({ quit: true })
-							if (Object.keys(cluster.workers).length==0){
+							if (Object.keys(cluster.workers).length==1){
 								console.log("Finished Working records.")
+								console.log("Agents | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
+								console.log("Agents | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
 								process.exit()
 							}
-
 							return false
 						}
 
@@ -66,7 +64,7 @@ if (cluster.isMaster) {
 
 						process.stdout.clearLine()
 						process.stdout.cursorTo(0)
-						process.stdout.write("Terms | countBibRecords: " + countBibRecords + " countTotal: " + countTotal )
+						process.stdout.write("Agents | countBibRecords: " + countBibRecords + " countTotal: " + countTotal )
 
 
 					})
@@ -118,25 +116,41 @@ if (cluster.isMaster) {
 				var aAgent = JSON.parse(JSON.stringify(agent))
 				var newAgent = {}
 
-				serializeGeneral.returnViafData(aAgent.viaf, function(viaf){
 
-					serializeGeneral.returnAgentByViaf(aAgent.viaf, function(savedAgent){
+				//we don't care about non VIAF in this pass
+				if (aAgent.viaf){
 
-						//console.log(msg.req[0].bnumber)
-						var updateAgent = serialize.mergeScAgentViafRegistryAgent(aAgent,viaf,savedAgent)
-						updateAgent.useCount++
-						updateAgent.source = "catalog"+msg.req[0].bnumber
+					serializeGeneral.returnViafData(aAgent.viaf, function(viaf){
 
-						process.send({ countTotal: true })
+						serializeGeneral.returnAgentByViaf(aAgent.viaf, function(savedAgent){
 
-						serializeGeneral.addAgentByViaf(updateAgent,function(){
-							eachCallback()
-						})				
-					})
-				})				
+							var updateAgent = serialize.mergeScAgentViafRegistryAgent(aAgent,viaf,savedAgent)
+							updateAgent.useCount++
+							updateAgent.source = "catalog"+msg.req[0].bnumber
+							
+							if (updateAgent.nameControlled){
+								updateAgent.nameControlled = updateAgent.nameControlled.trim() 
+
+								serializeGeneral.addAgentByViaf(updateAgent,function(){
+									eachCallback()
+								})	
+							}else{
+								//If there is no controlled name we do not want to use it
+							}						
+
+
+							process.send({ countTotal: true })
+
+			
+						})
+					})	
+				}else{
+					eachCallback()
+				}			
 
 			}, function(err){
 			   	if (err) console.log(err)
+
 
 			   	//done
 				process.nextTick(function(){	
