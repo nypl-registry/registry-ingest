@@ -129,62 +129,68 @@ if (cluster.isMaster) {
 
 
 		process.send({ countBibRecords: true })
+		if (msg.req[0].agents){
+			if (msg.req[0].agents.length>0){
 
-		if (msg.req[0].agents.length>0){
+				var scAgents = msg.req[0].agents
 
-			var scAgents = msg.req[0].agents
+				activeData = msg.req[0]
 
-			activeData = msg.req[0]
+				async.eachSeries(scAgents, function(agent, eachCallback) {
 
-			async.eachSeries(scAgents, function(agent, eachCallback) {
-
-				var aAgent = JSON.parse(JSON.stringify(agent))
-				var newAgent = {}
+					var aAgent = JSON.parse(JSON.stringify(agent))
+					var newAgent = {}
 
 
-				//we don't care about non VIAF in this pass
-				if (aAgent.viaf){
+					//we don't care about non VIAF in this pass
+					if (aAgent.viaf){
 
-					serializeGeneral.returnViafData(aAgent.viaf, function(viaf){
+						serializeGeneral.returnViafData(aAgent.viaf, function(viaf){
 
-						serializeGeneral.returnAgentByViaf(aAgent.viaf, function(savedAgent){
+							serializeGeneral.returnAgentByViaf(aAgent.viaf, function(savedAgent){
 
-							var updateAgent = serialize.mergeScAgentViafRegistryAgent(aAgent,viaf,savedAgent)
-							updateAgent.useCount++
-							updateAgent.source = "catalog"+msg.req[0].bnumber
-							
-							if (updateAgent.nameControlled){
-								updateAgent.nameControlled = updateAgent.nameControlled.trim() 
-								serializeGeneral.addAgentByViaf(updateAgent,function(){
+								var updateAgent = serialize.mergeScAgentViafRegistryAgent(aAgent,viaf,savedAgent)
+								updateAgent.useCount++
+								updateAgent.source = "catalog"+msg.req[0].bnumber
+								
+								if (updateAgent.nameControlled){
+									updateAgent.nameControlled = updateAgent.nameControlled.trim() 
+									serializeGeneral.addAgentByViaf(updateAgent,function(){
+										eachCallback()
+									})	
+								}else{
+									//If there is no controlled name we do not want to use it
 									eachCallback()
-								})	
-							}else{
-								//If there is no controlled name we do not want to use it
-								eachCallback()
-							}
-							process.send({ countTotal: true })			
-						})
-					})	
-				}else{
-					eachCallback()
-				}			
+								}
+								process.send({ countTotal: true })			
+							})
+						})	
+					}else{
+						eachCallback()
+					}			
 
-			}, function(err){
-			   	if (err) console.log(err)
+				}, function(err){
+				   	if (err) console.log(err)
 
 
+				   	//done
+					process.nextTick(function(){	
+						process.send({ req: true })
+					})		
+
+				})
+
+			}else{
 			   	//done
 				process.nextTick(function(){	
 					process.send({ req: true })
-				})		
-
-			})
-
+				})
+			}
 		}else{
-		   	//done
+			console.log("Empty record.")
 			process.nextTick(function(){	
 				process.send({ req: true })
-			})
+			})			
 		}
 
 
