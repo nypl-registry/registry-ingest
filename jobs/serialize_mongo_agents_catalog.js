@@ -22,12 +22,14 @@ if (cluster.isMaster) {
 			//console.log(serialize.shadowCatAgentsQueue[0])
 
 			var spawnTimer = setInterval(function(){
-				if (Object.keys(cluster.workers).length==10){
+				if (Object.keys(cluster.workers).length==50){
 					clearInterval(spawnTimer)
 				}else{
 
 					var worker = cluster.fork()
+
 					worker.on('message', function(msg) {
+
 
 						if (serialize.shadowCatAgentsQueue[0]===null){
 							console.log("Sendiing QUIT msg",Object.keys(cluster.workers).length)
@@ -48,7 +50,9 @@ if (cluster.isMaster) {
 							//console.log("serialize.shadowCatAgentsQueue.length:",serialize.shadowCatAgentsQueue.length)
 							//they are asking for new work							
 							if (serialize.shadowCatAgentsQueue.length>0){
-								worker.send({ req: serialize.shadowCatAgentsQueue.splice(0,1) })
+								var workItem = serialize.shadowCatAgentsQueue.splice(0,1)
+
+								worker.send({ req: workItem })
 							}else{
 								console.log("Nothing left to work in the queue!")
 								worker.send({ sleep: true })
@@ -65,6 +69,13 @@ if (cluster.isMaster) {
 						process.stdout.clearLine()
 						process.stdout.cursorTo(0)
 						process.stdout.write("Agents | countBibRecords: " + countBibRecords + " countTotal: " + countTotal )
+
+						msg = null
+						workItem = null
+
+
+						return true
+
 
 
 					})

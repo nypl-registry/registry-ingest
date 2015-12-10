@@ -30,7 +30,7 @@
     "json2csv": "^3.0.1",
     "keypress": "^0.2.1",
     "libxmljs": "^0.14.3",
-    "mongodb": "^2.0.43",
+    "mongodb": "^2.1.0",
     "n3": "^0.4.5",
     "pluralize": "^1.2.1",
     "request": "^2.65.0",
