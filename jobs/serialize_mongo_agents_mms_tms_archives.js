@@ -1,22 +1,31 @@
 "use strict"
 
 
-var serialize = require("../lib/serialize_utils.js")
+var serializeArchives = require("../lib/serialize_archives_agents_utils.js")
 
 
-serialize.populateArchivesAgentsCollctions(function(){	
-	serialize.populateArchivesAgentsComponents(function(){	
-		serialize.populateTmsAgents(function(){
-			serialize.populateMmsAgentsCollections(function(){
-				serialize.populateMmsAgentsContainers(function(){
-					serialize.populateMmsAgentsItems(function(){
 
-					})
-				})
-			})
-		})
-	})
+serializeArchives.populateArchivesAgentsCollctions(function(){
+
+	
+
+	
 })
+
+
+// serialize.populateArchivesAgentsCollctions(function(){	
+// 	serialize.populateArchivesAgentsComponents(function(){	
+// 		serialize.populateTmsAgents(function(){
+// 			serialize.populateMmsAgentsCollections(function(){
+// 				serialize.populateMmsAgentsContainers(function(){
+// 					serialize.populateMmsAgentsItems(function(){
+
+// 					})
+// 				})
+// 			})
+// 		})
+// 	})
+// })
 
 
 
