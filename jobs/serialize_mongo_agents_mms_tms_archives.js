@@ -6,11 +6,20 @@ var serializeArchives = require("../lib/serialize_archives_agents_utils.js")
 
 
 serializeArchives.populateArchivesAgentsCollctions(function(){
+	serializeArchives.populateArchivesAgentsComponents(function(){
 
-	
+			
+		process.nextTick(function() {
+			console.log('Done');
+			process.exit()
+		});
 
-	
+
+	})
 })
+
+
+
 
 
 // serialize.populateArchivesAgentsCollctions(function(){	
