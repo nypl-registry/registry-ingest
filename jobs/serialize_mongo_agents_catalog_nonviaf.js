@@ -133,6 +133,7 @@ if (cluster.isMaster) {
 
 
 		process.send({ countBibRecords: true })
+
 		if (msg.req[0].agents){
 			if (msg.req[0].agents.length>0){
 
@@ -148,7 +149,6 @@ if (cluster.isMaster) {
 					//we don't care about VIAF in this pass
 					if (!aAgent.viaf){
 
-						//serializeGeneral.returnViafData(aAgent.viaf, function(viaf){
 
 						serializeGeneral.returnAgentByName(aAgent.nameLocal, function(savedAgent){
 
@@ -206,31 +206,8 @@ if (cluster.isMaster) {
 
 							}
 
-
-
-							
-
-							// var updateAgent = serialize.mergeScAgentViafRegistryAgent(aAgent,false,savedAgent)
-							// updateAgent.useCount++
-							// updateAgent.source = "catalog"+msg.req[0].bnumber
-
-
-
-							
-							// if (updateAgent.nameControlled){
-							// 	updateAgent.nameControlled = updateAgent.nameControlled.trim() 
-							// 	serializeGeneral.addAgentByViaf(updateAgent,function(){
-							// 		eachCallback()
-							// 	})	
-							// }else{
-							// 	//If there is no controlled name we do not want to use it
-							// 	eachCallback()
-							// }
-
-
-							process.send({ countTotal: true })			
+							process.send({ countTotal: true })	
 						})
-						//})	
 
 					}else{
 						eachCallback()
