@@ -13,85 +13,89 @@ if (cluster.isMaster) {
 
 	console.log("Initializing shadowcat agent Queue")
 
-	serialize.populateShadowcatAgentsBuildQueue(function(){
+	serialize.prepareAgents(function(){
 
-		console.log("Finding Starting Agent Id")
-		serializeGeneral.returnMaxAgentId(function(agentId){
+		serialize.populateShadowcatAgentsBuildQueue(function(){
 
-			console.log("Using",agentId)
-			//console.log(serialize.shadowCatAgentsQueue[0])
+			console.log("Finding Starting Agent Id")
+			serializeGeneral.returnMaxAgentId(function(agentId){
 
-			var spawnTimer = setInterval(function(){
-				if (Object.keys(cluster.workers).length==50){
-					clearInterval(spawnTimer)
-				}else{
+				console.log("Using",agentId)
+				//console.log(serialize.shadowCatAgentsQueue[0])
 
-					var worker = cluster.fork()
+				var spawnTimer = setInterval(function(){
+					if (Object.keys(cluster.workers).length==50){
+						clearInterval(spawnTimer)
+					}else{
 
-					worker.on('message', function(msg) {
+						var worker = cluster.fork()
+
+						worker.on('message', function(msg) {
 
 
-						if (serialize.shadowCatAgentsQueue[0]===null){
-							console.log("Sendiing QUIT msg",Object.keys(cluster.workers).length)
-							//that is it, we've reached the end
-							worker.send({ quit: true })
-							if (Object.keys(cluster.workers).length==1){
-								console.log("Finished Working records.")
-								console.log("Agents | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
-								console.log("Agents | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
-								process.exit()
+							if (serialize.shadowCatAgentsQueue[0]===null){
+								console.log("Sendiing QUIT msg",Object.keys(cluster.workers).length)
+								//that is it, we've reached the end
+								worker.send({ quit: true })
+								if (Object.keys(cluster.workers).length==1){
+									console.log("Finished Working records.")
+									console.log("Agents | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
+									console.log("Agents | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
+									process.exit()
+								}
+								return false
 							}
-							return false
-						}
 
 
 
-						if (msg.req) {
-							//console.log("serialize.shadowCatAgentsQueue.length:",serialize.shadowCatAgentsQueue.length)
-							//they are asking for new work							
-							if (serialize.shadowCatAgentsQueue.length>0){
-								var workItem = serialize.shadowCatAgentsQueue.splice(0,1)
+							if (msg.req) {
+								//console.log("serialize.shadowCatAgentsQueue.length:",serialize.shadowCatAgentsQueue.length)
+								//they are asking for new work							
+								if (serialize.shadowCatAgentsQueue.length>0){
+									var workItem = serialize.shadowCatAgentsQueue.splice(0,1)
 
-								worker.send({ req: workItem })
-							}else{
-								console.log("Nothing left to work in the queue!")
-								worker.send({ sleep: true })
+									worker.send({ req: workItem })
+								}else{
+									console.log("Nothing left to work in the queue!")
+									worker.send({ sleep: true })
+								}
 							}
-						}
 
-						if (msg.countBibRecords) {
-							countBibRecords++
-						}
-						if (msg.countTotal) {
-							countTotal++
-						}
+							if (msg.countBibRecords) {
+								countBibRecords++
+							}
+							if (msg.countTotal) {
+								countTotal++
+							}
 
-						process.stdout.clearLine()
-						process.stdout.cursorTo(0)
-						process.stdout.write("Agents | countBibRecords: " + countBibRecords + " countTotal: " + countTotal )
+							process.stdout.clearLine()
+							process.stdout.cursorTo(0)
+							process.stdout.write("Agents | countBibRecords: " + countBibRecords + " countTotal: " + countTotal )
 
-						msg = null
-						workItem = null
-
-
-						return true
+							msg = null
+							workItem = null
 
 
-
-					})
-
-				}
-			},1000)
+							return true
 
 
 
-			//setup request
+						})
 
+					}
+				},1000)
+
+
+
+				//setup request
 
 
 
 
+
+			})
 		})
+
 	})
 
 
