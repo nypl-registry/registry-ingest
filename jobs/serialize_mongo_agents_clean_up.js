@@ -5,7 +5,7 @@ var serializeGeneral = require("../lib/serialize_utils.js")
 var utils = require("../lib/utils.js")
 
 
-serializeGeneral.clusterByName(function(){
+serializeGeneral.cleanUpEmptyNormalizedNames(function(){
 
 
 	
