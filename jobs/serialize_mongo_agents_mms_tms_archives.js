@@ -25,19 +25,19 @@ var serializeTms = require("../lib/serialize_tms_agents_utils.js")
 
 
 
-// 		serializeTms.populateTmsAgents(function(){
-			serializeMms.populateMmsAgentsCollections(function(){
- 				serializeMms.populateMmsAgentsContainers(function(){
-					serializeMms.populateMmsAgentsItems(function(){
+ 		serializeTms.populateTmsAgents(function(){
+			// serializeMms.populateMmsAgentsCollections(function(){
+ 		// 		serializeMms.populateMmsAgentsContainers(function(){
+			// 		serializeMms.populateMmsAgentsItems(function(){
 
 						console.log('Done');
 						process.exit()
 
 
-					})
-				})
-			})
-// 		})
+			// 		})
+			// 	})
+			// })
+ 		})
 
 
 
