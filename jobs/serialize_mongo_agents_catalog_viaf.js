@@ -12,7 +12,7 @@ if (cluster.isMaster) {
 	var countBibRecords = 0, countTotal = 0
 
 	console.log("Initializing shadowcat agent Queue")
-
+	
 	serialize.prepareAgents(function(){
 
 		serialize.populateShadowcatAgentsBuildQueue(function(){
