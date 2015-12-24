@@ -23,7 +23,7 @@ if (cluster.isMaster) {
 			//console.log(serialize.shadowCatAgentsQueue[0])
 
 			var spawnTimer = setInterval(function(){
-				if (Object.keys(cluster.workers).length==50){
+				if (Object.keys(cluster.workers).length==10){
 					clearInterval(spawnTimer)
 				}else{
 
@@ -39,8 +39,8 @@ if (cluster.isMaster) {
 							setTimeout(function(){
 								if (Object.keys(cluster.workers).length==1||Object.keys(cluster.workers).length==0){
 									console.log("Finished Working records.")
-									console.log("Agents | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
-									console.log("Agents | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
+									console.log("Agents Non-VIAF | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
+									console.log("Agents Non-VIAF | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
 									process.exit()
 								}
 							},1000)
@@ -72,7 +72,7 @@ if (cluster.isMaster) {
 
 						process.stdout.clearLine()
 						process.stdout.cursorTo(0)
-						process.stdout.write("Agents | countBibRecords: " + countBibRecords + " countTotal: " + countTotal )
+						process.stdout.write("Agents Non-VIAF | countBibRecords: " + countBibRecords + " countTotal: " + countTotal )
 
 						msg = null
 						workItem = null
