@@ -7,7 +7,7 @@ var utils = require("../lib/utils.js")
 
 serializeGeneral.clusterByName(function(){
 
-
+	process.exit()
 	
 
 

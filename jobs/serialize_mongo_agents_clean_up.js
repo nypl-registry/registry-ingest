@@ -8,7 +8,7 @@ var utils = require("../lib/utils.js")
 serializeGeneral.cleanUpEmptyNormalizedNames(function(){
 
 
-	
+	process.exit()
 
 
 })

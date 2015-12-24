@@ -1,0 +1,5 @@
+node jobs/serialize_mongo_agents_catalog_viaf.js
+node jobs/serialize_mongo_agents_catalog_nonviaf.js
+node jobs/serialize_mongo_agents_mms_tms_archives.js
+node jobs/serialize_mongo_agents_clean_up.js
+node jobs/serialize_mongo_agents_cluster.js
