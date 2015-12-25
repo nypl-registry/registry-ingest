@@ -36,11 +36,11 @@ if (cluster.isMaster) {
 							console.log("Sending QUIT msg",Object.keys(cluster.workers).length)
 							//that is it, we've reached the end
 							worker.send({ quit: true })
-							setTimeout(function(){
-								if (Object.keys(cluster.workers).length==1||Object.keys(cluster.workers).length==0){
+							setInterval(function(){
+								if (Object.keys(cluster.workers).length<2){
 									console.log("Finished Working records.")
-									console.log("Agents Non-VIAF | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
-									console.log("Agents Non-VIAF | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
+									console.log("Agents Non-VIAF  | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
+									console.log("Agents Non-VIAF  | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
 									process.exit()
 								}
 							},1000)

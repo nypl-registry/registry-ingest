@@ -37,12 +37,15 @@ if (cluster.isMaster) {
 								console.log("Sendiing QUIT msg",Object.keys(cluster.workers).length)
 								//that is it, we've reached the end
 								worker.send({ quit: true })
-								if (Object.keys(cluster.workers).length==1){
-									console.log("Finished Working records.")
-									console.log("Agents VIAF | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
-									console.log("Agents VIAF | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
-									process.exit()
-								}
+
+								setInterval(function(){
+									if (Object.keys(cluster.workers).length<2){
+										console.log("Finished Working records.")
+										console.log("Agents VIAF | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
+										console.log("Agents VIAF | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
+										process.exit()
+									}
+								},1000)
 								return false
 							}
 
