@@ -1,116 +1,227 @@
 "use strict"
 
-
-var serialize = require("../lib/serialize_utils.js")
-
-
-
-serialize.populateShadowcatTerms(function(agentId){
-
-	//serialize.populateShadowcatAgentsNonViaf(agentId,function(){
+var cluster = require('cluster')
+var serialize = require("../lib/serialize_catalog_terms_utils.js")
+var serializeGeneral = require("../lib/serialize_utils.js")
 
 
 
-	//})
-
-})
-
-
-
-
-// var cluster = require('cluster');
-
-// if (cluster.isMaster) {
-
-// 	// cluster.fork()
-// 	// cluster.fork()
-// 	// cluster.fork()
-// 	// cluster.fork()
-
-// 	// cluster.on('disconnect', function(worker, code, signal) {
-
-// 	// 	if (Object.keys(cluster.workers).length === 1){
-// 	// 		var mmsIngestPrune = require("../lib/mss_ingest_prune.js")
-			
-// 	// 		console.log("Pruning collections w/ out captures")
-// 	// 		mmsIngestPrune.pruneCollectionsWithoutCaptures(function(err,results){
-
-// 	// 			console.log("Pruning containers w/ out captures")
-// 	// 			mmsIngestPrune.pruneContainersWithoutCaptures(function(err,results){
-
-// 	// 				console.log("Pruning items w/ out captures")
-
-// 	// 				mmsIngestPrune.pruneItemsWithoutCaptures(function(err,results){
-
-
-// 	// 					console.log("Pruning manually defined collections")
-						
-// 	// 					mmsIngestPrune.pruneIgnoreCollections(function(err,results){
-
-// 	// 						console.log("Removing items that have an invalid container.")
-
-// 	// 						mmsIngestPrune.pruneItemsWithInvalidContainer(function(err,results){
-							
-// 	// 							process.exit()
-
-// 	// 						})
-
-// 	// 					})
-// 	// 				})
-// 	// 			})
-// 	// 		})
-// 	// 	}
-// 	// });	
-
-
+if (cluster.isMaster) {
 
 	
+	var countBibRecords = 0, countTotal = 0
+
+	console.log("Initializing shadowcat TERMS Queue")
+	
+	serialize.prepareTerms(function(){
+
+		serialize.populateShadowcatTermsBuildQueue(function(){
+			
+				//console.log(serialize.shadowCatTermsQueue[0])
+
+				var spawnTimer = setInterval(function(){
+					if (Object.keys(cluster.workers).length==10){
+						clearInterval(spawnTimer)
+					}else{
+
+						var worker = cluster.fork()
+
+						worker.on('message', function(msg) {
+
+
+							if (serialize.shadowCatTermsQueue[0]===null){
+								console.log("Sendiing QUIT msg",Object.keys(cluster.workers).length)
+								//that is it, we've reached the end
+								worker.send({ quit: true })
+
+								setInterval(function(){
+									if (Object.keys(cluster.workers).length<2){
+										console.log("Finished Working records.")
+										console.log("Catalog Terms | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
+										console.log("Catalog Terms | countBibRecords: " + countBibRecords + " countTotal: " + countTotal)
+										process.exit()
+									}
+								},1000)
+								return false
+							}
 
 
 
-					
+							if (msg.req) {
+								console.log("serialize.shadowCatTermsQueue.length:",serialize.shadowCatTermsQueue.length)
+								//they are asking for new work							
+								if (serialize.shadowCatTermsQueue.length>0){
+									
+									var workItem = serialize.shadowCatTermsQueue.splice(0,1)
+
+									worker.send({ req: workItem })
+								}else{
+									console.log("Nothing left to work in the queue!")
+									worker.send({ sleep: true })
+								}
+							}
+
+							if (msg.countBibRecords) {
+								countBibRecords++
+							}
+							if (msg.countTotal) {
+								countTotal++
+							}
+
+							process.stdout.clearLine()
+							process.stdout.cursorTo(0)
+							process.stdout.write("Catalog Terms | countBibRecords: " + countBibRecords + " countTotal: " + countTotal )
+
+							msg = null
+							workItem = null
 
 
-// } else {
+							return true
+
+
+
+						})
+
+					}
+				},1000)
+
+
+
+				//setup request
+
+		})
+
+	})
+
+
+}else{
+
+
+	var async = require("async")
+	var workedInLastMin = false
+	var activeData = null
+
+	setInterval(function(){
+		if (!workedInLastMin){
+			console.log('Worker #',cluster.worker.id, " I havent worked in the last min: ",activeData)
+		}else{
+			workedInLastMin = false
+		}
+	},60000)
+
+
+	var processAgent = function(msg) {
+
+		workedInLastMin = true
+
+		if (msg.sleep){
+			console.log('Worker #',cluster.worker.id," No work! Going to sleep for 300 sec ")
+			setTimeout(function(){process.send({ req: true });},30000)
+			return true
+		}
+
+		if (msg.quit){
+			console.log('Worker #',cluster.worker.id," Done, quiting ")
+			process.exit()
+			return true
+		}
+
+
+		process.send({ countBibRecords: true })
+		if (msg.req[0].terms){
+			if (msg.req[0].terms.length>0){
+
+				var scTerms = msg.req[0].terms
+
+				activeData = msg.req[0]
+
+				async.each(scTerms, function(term, eachCallback) {
+
+					var aTerm = JSON.parse(JSON.stringify(term))
+					var newAgent = {}
+
+					//console.log(aTerm)
+					//eachCallback()
+
+
+
+					if (term.fast){
+
+						serializeGeneral.returnFastByFast(term.fast,function(fastRecord){
+
+							console.log(fastRecord)
+							eachCallback()
+						})
+
+
+					}else{
+
+						eachCallback()
+
+
+
+					}
 
 
 
 
-// 	// if (cluster.worker.id == 1){
+					// //we don't care about non VIAF in this pass
+					// if (aTerm.viaf){
 
-// 	// 	var mmsCollectionIngest = require("../lib/mss_ingest_collections.js")
-// 	// 	mmsCollectionIngest.ingest(function(err,results){
-// 	// 		console.log("Ingesting collections done")
-// 	// 		cluster.worker.disconnect()
-// 	// 	})
+					// 	serializeGeneral.returnViafData(aTerm.viaf, function(viaf){
 
-// 	// }else if (cluster.worker.id == 2){
+					// 		serializeGeneral.returnAgentByViaf(aTerm.viaf, function(savedAgent){
 
-// 	// 	var mmsContainerIngest = require("../lib/mss_ingest_containers.js")
-// 	// 	mmsContainerIngest.ingest(function(err,results){
-// 	// 		console.log("Ingesting containers done")
-// 	// 		cluster.worker.disconnect()
-// 	// 	})
+					// 			var updateAgent = serialize.mergeScAgentViafRegistryAgent(aTerm,viaf,savedAgent)
+					// 			updateAgent.useCount++
+					// 			updateAgent.source = "catalog"+msg.req[0].bnumber
+								
+					// 			if (updateAgent.nameControlled){
+					// 				updateAgent.nameControlled = updateAgent.nameControlled.trim() 
+					// 				serializeGeneral.addAgentByViaf(updateAgent,function(){
+					// 					eachCallback()
+					// 				})	
+					// 			}else{
+					// 				//If there is no controlled name we do not want to use it
+					// 				eachCallback()
+					// 			}
+					// 			process.send({ countTotal: true })			
+					// 		})
+					// 	})	
+					// }else{
+					// 	eachCallback()
+					// }			
 
-
-// 	// }else if (cluster.worker.id == 3){
-
-// 	// 	var mmsItemsIngest = require("../lib/mss_ingest_items.js")
-// 	// 	mmsItemsIngest.ingest(function(err,results){
-// 	// 		console.log("Ingesting items done")
-// 	// 		cluster.worker.disconnect()
-// 	// 	})
-
-// 	// }else if (cluster.worker.id == 4){
-
-
-// 	// 	var mmsCapturesIngest = require("../lib/mss_ingest_captures.js")
-// 	// 	mmsCapturesIngest.ingest(function(err,results){
-// 	// 		console.log("Ingesting captures done")
-// 	// 		cluster.worker.disconnect()
-// 	// 	})
-
-// 	// }
+				}, function(err){
+				   	if (err) console.log(err)
 
 
-// }
+				   	//done
+					process.nextTick(function(){	
+						process.send({ req: true })
+					})		
+
+				})
+
+			}else{
+			   	//done
+				process.nextTick(function(){	
+					process.send({ req: true })
+				})
+			}
+		}else{
+			console.log("Empty record.")
+			process.nextTick(function(){	
+				process.send({ req: true })
+			})			
+		}
+
+
+	} 
+
+
+	process.on('message', processAgent)
+	process.send({ req: true });
+
+}
+
