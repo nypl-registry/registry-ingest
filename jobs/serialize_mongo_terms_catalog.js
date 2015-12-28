@@ -165,36 +165,59 @@ if (cluster.isMaster) {
 										term.termControlled = fastRecord.prefLabel
 										term.termAlt = fastRecord.altLabel
 
+										if (!term.termControlled){
+											if (term.nameLocal) term.termControlled = term.nameLocal
+											if (term.nameFast) term.termControlled = term.nameFast
+										}
+
 										var updateTerm = serializeGeneral.buildTerm(term)
+
+
 
 										updateTerm.source = "catalog" + msg.req[0].bnumber
 
 										serializeGeneral.adddTermByFast(updateTerm,function(){
-
 											eachCallback()
-
 										})
 
 									}else{
 
 										errorLib.error("Term Serialization - Catalog - Cannot find this FAST Term:", JSON.stringify(term))
-										eachCallback()
+										//no FAST ID, do a name lookup on the TABLE and see if it is added yet
+
+
+										if (term.nameLocal) term.termControlled = term.nameLocal
+										if (term.nameFast) term.termControlled = term.nameFast
+
+										serializeGeneral.returnTermByTerm(term.termControlled,function(termsRecord){
+											if (!termsRecord){
+
+
+												
+
+												var updateTerm = serializeGeneral.buildTerm(term)
+												updateTerm.source = "catalog" + msg.req[0].bnumber
+												
+												errorLib.error("^^^ Adding it in:", JSON.stringify(updateTerm))
+
+												serializeGeneral.addTermByTerm(updateTerm,function(){
+													eachCallback()
+												})
+											}else{
+												eachCallback()								
+											}
+
+										})										
 
 									}
-									//console.log(fastRecord)
+									
 
 
 
 
-								})								
-
-
-
+								})
 							}else{
-
-								//console.log(term)
-								//console.log(termsRecord)
-
+								//It is in there, fine
 								eachCallback()
 							}
 
@@ -205,7 +228,25 @@ if (cluster.isMaster) {
 
 					}else{
 
-						eachCallback()
+						
+						//no FAST ID, do a name lookup on the TABLE and see if it is added yet
+						serializeGeneral.returnTermByTerm(term.nameLocal,function(termsRecord){
+							if (!termsRecord){
+
+								term.termControlled = term.nameLocal
+								var updateTerm = serializeGeneral.buildTerm(term)
+								updateTerm.source = "catalog" + msg.req[0].bnumber
+								serializeGeneral.addTermByTerm(updateTerm,function(){
+									eachCallback()
+								})
+							}else{
+								eachCallback()								
+							}
+
+						})
+
+
+						
 
 
 
