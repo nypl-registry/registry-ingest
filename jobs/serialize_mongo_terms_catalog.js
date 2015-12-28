@@ -3,6 +3,7 @@
 var cluster = require('cluster')
 var serialize = require("../lib/serialize_catalog_terms_utils.js")
 var serializeGeneral = require("../lib/serialize_utils.js")
+var errorLib = require("../lib/error.js")
 
 
 
@@ -48,7 +49,7 @@ if (cluster.isMaster) {
 
 
 							if (msg.req) {
-								console.log("serialize.shadowCatTermsQueue.length:",serialize.shadowCatTermsQueue.length)
+
 								//they are asking for new work							
 								if (serialize.shadowCatTermsQueue.length>0){
 									
@@ -147,11 +148,59 @@ if (cluster.isMaster) {
 
 					if (term.fast){
 
-						serializeGeneral.returnFastByFast(term.fast,function(fastRecord){
 
-							console.log(fastRecord)
-							eachCallback()
+						serializeGeneral.returnTermByFast(term.fast,function(termsRecord){
+
+							if (!termsRecord){
+
+								//it is not in the terms table add it
+
+								//grab the info
+
+								serializeGeneral.returnFastByFast(term.fast,function(fastRecord){
+									
+									if (fastRecord){
+
+										//console.log(fastRecord)
+										term.termControlled = fastRecord.prefLabel
+										term.termAlt = fastRecord.altLabel
+
+										var updateTerm = serializeGeneral.buildTerm(term)
+
+										updateTerm.source = "catalog" + msg.req[0].bnumber
+
+										serializeGeneral.adddTermByFast(updateTerm,function(){
+
+											eachCallback()
+
+										})
+
+									}else{
+
+										errorLib.error("Term Serialization - Catalog - Cannot find this FAST Term:", JSON.stringify(term))
+										eachCallback()
+
+									}
+									//console.log(fastRecord)
+
+
+
+
+								})								
+
+
+
+							}else{
+
+								//console.log(term)
+								//console.log(termsRecord)
+
+								eachCallback()
+							}
+
 						})
+
+
 
 
 					}else{
