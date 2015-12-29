@@ -21,7 +21,7 @@ if (cluster.isMaster) {
 				//console.log(serialize.shadowCatTermsQueue[0])
 
 				var spawnTimer = setInterval(function(){
-					if (Object.keys(cluster.workers).length==20){
+					if (Object.keys(cluster.workers).length==1){
 						clearInterval(spawnTimer)
 					}else{
 
@@ -129,6 +129,8 @@ if (cluster.isMaster) {
 
 
 		process.send({ countBibRecords: true })
+
+
 		if (msg.req[0].terms){
 			if (msg.req[0].terms.length>0){
 
@@ -140,11 +142,6 @@ if (cluster.isMaster) {
 
 					var aTerm = JSON.parse(JSON.stringify(term))
 					var newAgent = {}
-
-					//console.log(aTerm)
-					//eachCallback()
-
-
 
 					if (term.fast){
 
