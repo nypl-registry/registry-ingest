@@ -21,7 +21,7 @@ if (cluster.isMaster) {
 				//console.log(serialize.shadowCatTermsQueue[0])
 
 				var spawnTimer = setInterval(function(){
-					if (Object.keys(cluster.workers).length==1){
+					if (Object.keys(cluster.workers).length==20){
 						clearInterval(spawnTimer)
 					}else{
 
@@ -30,7 +30,7 @@ if (cluster.isMaster) {
 						worker.on('message', function(msg) {
 
 
-							if (serialize.shadowCatTermsQueue[0]===null){
+							if (serialize.shadowCatTermsQueue[0]==="END"){
 								console.log("Sendiing QUIT msg",Object.keys(cluster.workers).length)
 								//that is it, we've reached the end
 								worker.send({ quit: true })
@@ -71,7 +71,7 @@ if (cluster.isMaster) {
 
 							process.stdout.clearLine()
 							process.stdout.cursorTo(0)
-							process.stdout.write("Catalog Terms | countBibRecords: " + countBibRecords + " countTotal: " + countTotal )
+							process.stdout.write("Catalog Terms | countBibRecords: " + countBibRecords + " countTotal: " + countTotal + " Workers: " + Object.keys(cluster.workers).length)
 
 							msg = null
 							workItem = null
