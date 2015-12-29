@@ -54,7 +54,7 @@ if (cluster.isMaster) {
 								if (serialize.shadowCatTermsQueue.length>0){
 									
 									var workItem = serialize.shadowCatTermsQueue.splice(0,1)
-
+									console.log(workItem)
 									worker.send({ req: workItem })
 								}else{
 									console.log("Nothing left to work in the queue!")
