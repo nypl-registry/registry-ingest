@@ -23,7 +23,7 @@ if (cluster.isMaster) {
 
 				var spawnTimer = setInterval(function(){
 					workerCounter[Object.keys(cluster.workers).length] = 0
-					if (Object.keys(cluster.workers).length==10){
+					if (Object.keys(cluster.workers).length==20){
 						clearInterval(spawnTimer)
 					}else{
 
@@ -77,7 +77,7 @@ if (cluster.isMaster) {
 							process.stdout.clearLine()
 							process.stdout.cursorTo(0)
 							process.stdout.write("Catalog Terms | countBibRecords: " + countBibRecords + " countTotal: " + countTotal + " Workers: " + Object.keys(cluster.workers).length)
-							console.log("\n",workerCounter,"\n")
+							
 							msg = null
 							workItem = null
 
@@ -132,7 +132,7 @@ if (cluster.isMaster) {
 			return true
 		}
 
-		console.log(">>>>>",cluster.worker.id.toString().trim())
+		
 		process.send({ countBibRecords: cluster.worker.id})
 
 
