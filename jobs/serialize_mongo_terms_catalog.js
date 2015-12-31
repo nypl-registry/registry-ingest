@@ -11,6 +11,7 @@ if (cluster.isMaster) {
 
 	
 	var countBibRecords = 0, countTotal = 0
+	var workerCounter = {}
 
 	console.log("Initializing shadowcat TERMS Queue")
 	
@@ -21,7 +22,8 @@ if (cluster.isMaster) {
 				//console.log(serialize.shadowCatTermsQueue[0])
 
 				var spawnTimer = setInterval(function(){
-					if (Object.keys(cluster.workers).length==20){
+					workerCounter[Object.keys(cluster.workers).length] = 0
+					if (Object.keys(cluster.workers).length==10){
 						clearInterval(spawnTimer)
 					}else{
 
@@ -63,16 +65,19 @@ if (cluster.isMaster) {
 							}
 
 							if (msg.countBibRecords) {
+								workerCounter[msg.countBibRecords]++
 								countBibRecords++
 							}
 							if (msg.countTotal) {
+
+								
 								countTotal++
 							}
 
 							process.stdout.clearLine()
 							process.stdout.cursorTo(0)
 							process.stdout.write("Catalog Terms | countBibRecords: " + countBibRecords + " countTotal: " + countTotal + " Workers: " + Object.keys(cluster.workers).length)
-
+							console.log("\n",workerCounter,"\n")
 							msg = null
 							workItem = null
 
@@ -127,8 +132,11 @@ if (cluster.isMaster) {
 			return true
 		}
 
+		console.log(">>>>>",cluster.worker.id.toString().trim())
+		process.send({ countBibRecords: cluster.worker.id})
 
-		process.send({ countBibRecords: true })
+
+
 
 
 		if (msg.req[0].terms){

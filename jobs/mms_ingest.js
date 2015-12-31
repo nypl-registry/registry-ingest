@@ -52,8 +52,6 @@ if (cluster.isMaster) {
 } else {
 
 
-
-
 	if (cluster.worker.id == 1){
 
 		var mmsCollectionIngest = require("../lib/mms_ingest_collections.js")
