@@ -7,14 +7,14 @@ if (cluster.isMaster) {
 
 
 
-	cluster.fork()
-	cluster.fork()
-	cluster.fork()
-	cluster.fork()
+	// cluster.fork()
+	// cluster.fork()
+	// cluster.fork()
+	// cluster.fork()
 
-	cluster.on('disconnect', function(worker, code, signal) {
+	//cluster.on('disconnect', function(worker, code, signal) {
 
-		if (Object.keys(cluster.workers).length === 1){
+	//	if (Object.keys(cluster.workers).length === 1){
 			var mmsIngestPrune = require("../lib/mms_ingest_prune.js")
 			
 			console.log("Pruning collections w/ out captures")
@@ -44,8 +44,8 @@ if (cluster.isMaster) {
 					})
 				})
 			})
-		}
-	});	
+	//	}
+	//});	
 					
 
 
