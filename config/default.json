@@ -286,7 +286,7 @@
         "mmsContainers": "/data/mms_containers.json",
         "mmsItems": "/data/mms_items.json",
         "pdExportCsv": "/data/pd_items.csv",
-        "pdExportJson": "/data/pd_items.json",
+        "pdExportJson": "/data/pd_items.ndjson",
         "tmsAltNum": "/data/tms_alt_num.csv",
         "tmsClassification": "/data/tms_classification.csv",
         "tmsConsituents": "/data/tms_consituents.csv",
