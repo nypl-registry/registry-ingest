@@ -197,9 +197,6 @@ if (cluster.isMaster) {
 										serializeGeneral.returnTermByTerm(term.termControlled,function(termsRecord){
 											if (!termsRecord){
 
-
-												
-
 												var updateTerm = serializeGeneral.buildTerm(term)
 												updateTerm.source = "catalog" + msg.req[0].bnumber
 												
