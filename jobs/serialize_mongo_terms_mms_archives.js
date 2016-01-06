@@ -1,27 +1,27 @@
 "use strict"
 
 
-var serialize = require("../lib/serialize_utils.js")
+var serializeArchives = require("../lib/serialize_archives_terms_utils.js")
 
-serialize.populateArchivesTermsCollections(function(){
+//serializeArchives.populateArchivesTermsCollections(function(){
 
-	serialize.populateArchivesTermsComponents(function(){
+	serializeArchives.populateArchivesTermsComponents(function(){
 
-		serialize.populateMmsTermsCollections(function(){
+	// 	serialize.populateMmsTermsCollections(function(){
 
-			serialize.populateMmsTermsContainers(function(){
+	// 		serialize.populateMmsTermsContainers(function(){
 
-				serialize.populateMmsTermsItems(function(){
+	// 			serialize.populateMmsTermsItems(function(){
 
-				})
+	// 			})
 
-			})
+	// 		})
 
-		})
+	// 	})
 
 	})
 
-})
+//})
 
 
 
