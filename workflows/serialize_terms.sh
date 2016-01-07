@@ -1,2 +1,3 @@
 node jobs/serialize_mongo_terms_catalog.js
 node jobs/serialize_mongo_terms_mms_archives.js
+node jobs/serialize_mongo_terms_enumerate.js
