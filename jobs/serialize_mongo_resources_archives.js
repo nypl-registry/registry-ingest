@@ -5,98 +5,116 @@ var fs = require('fs');
 
 if (cluster.isMaster) {
 
-	var botCount = 8
+	var botCount = 10
 
 	
-	var mmsMappingStrategies = require("../lib/mms_mapping_strategies.js")
-	mmsMappingStrategies.returnedMatchedMmsToArchivesCollections(function(err,results){
-
-		//results = [results[0]]
-
-		//console.log(results.length)
-
-		var report = ""
-
-		var getWork = function(){
-
-			if (results.length == 0){
-				return "die"
-			}
+	var archivesSeralize = require("../lib/serialize_archives_resources_utils.js")
 
 
-			var record = JSON.parse(JSON.stringify(results[0]))
-
-			//delete this one
-			results.shift()
 
 
-			return record
-
-		}
-
-		var buildWorker = function(){
-
-			var worker = cluster.fork();
-			console.log('Spawing worker:',worker.id)
+	archivesSeralize.returnAllCollectionIds(function(collectionIds){
 
 
-			worker.on('message', function(msg) {
+
+		console.log(collectionIds)
 
 
-				//asking for work
-				if (msg.request){
-					
-					worker.send({ work: getWork() })
-				}
-				//returning results
-				if (msg.results){
-
-					report = report + msg.title + "\n"
-					report = report + "\t" + "http://metadata.nypl.org/collection/" + msg.id + " --> " + "http://archives.nypl.org/collection/" + msg.archivesId + "\n"
-					
-					var jsonRespone = JSON.stringify(msg.results,null,2).split("\n")
-					for (var x in jsonRespone){
-
-						report = report + "\t" + jsonRespone[x] + "\n"
-					}
-
-					report = report + "\n"
-					
-					fs.writeFile("archives_mapping.txt", report, function(err) {
-						
-						if(err) {
-							return console.log(err);
-						}
-
-
-					})
-
-
-				}
-
-			})
-
-
-			//send the first one
-			worker.send({ work: getWork() })
-
-
-		}
-
-		for (var i = 1; i <= botCount; i++) {
-			setTimeout(function(){
-				buildWorker()
-			}, Math.floor(Math.random() * (10000 - 0)))
-		}
 	})
 
 
 
-	cluster.on('disconnect', function(worker, code, signal) {
-		if (Object.keys(cluster.workers).length === 1){
-			process.exit()
-		}
-	});
+
+
+
+	// mmsMappingStrategies.returnedMatchedMmsToArchivesCollections(function(err,results){
+
+	// 	//results = [results[0]]
+
+	// 	//console.log(results.length)
+
+	// 	var report = ""
+
+	// 	var getWork = function(){
+
+	// 		if (results.length == 0){
+	// 			return "die"
+	// 		}
+
+
+	// 		var record = JSON.parse(JSON.stringify(results[0]))
+
+	// 		//delete this one
+	// 		results.shift()
+
+
+	// 		return record
+
+	// 	}
+
+	// 	var buildWorker = function(){
+
+	// 		var worker = cluster.fork();
+	// 		console.log('Spawing worker:',worker.id)
+
+
+	// 		worker.on('message', function(msg) {
+
+
+	// 			//asking for work
+	// 			if (msg.request){
+					
+	// 				worker.send({ work: getWork() })
+	// 			}
+	// 			//returning results
+	// 			if (msg.results){
+
+	// 				report = report + msg.title + "\n"
+	// 				report = report + "\t" + "http://metadata.nypl.org/collection/" + msg.id + " --> " + "http://archives.nypl.org/collection/" + msg.archivesId + "\n"
+					
+	// 				var jsonRespone = JSON.stringify(msg.results,null,2).split("\n")
+	// 				for (var x in jsonRespone){
+
+	// 					report = report + "\t" + jsonRespone[x] + "\n"
+	// 				}
+
+	// 				report = report + "\n"
+					
+	// 				fs.writeFile("archives_mapping.txt", report, function(err) {
+						
+	// 					if(err) {
+	// 						return console.log(err);
+	// 					}
+
+
+	// 				})
+
+
+	// 			}
+
+	// 		})
+
+
+	// 		//send the first one
+	// 		worker.send({ work: getWork() })
+
+
+	// 	}
+
+	// 	for (var i = 1; i <= botCount; i++) {
+	// 		setTimeout(function(){
+	// 			buildWorker()
+	// 		}, Math.floor(Math.random() * (10000 - 0)))
+	// 	}
+	// })
+
+
+
+	// cluster.on('disconnect', function(worker, code, signal) {
+	// 	if (Object.keys(cluster.workers).length === 1){
+	// 		process.exit()
+	// 	}
+	// });
 
 
 
