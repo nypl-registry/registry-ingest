@@ -50,7 +50,7 @@ if (cluster.isMaster) {
 		})
 
 		workingQueue = false
-	},500)
+	},10)
 
 	
 
