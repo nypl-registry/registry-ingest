@@ -5,17 +5,21 @@ var cluster = require('cluster');
 
 if (cluster.isMaster) {
 
+
+	//mssDb 1604 test for a lot of MMS items w/ no component matches
+
+
+	var archivesSeralize = require("../lib/serialize_archives_resources_utils.js")
+	var serializeUtils = require("../lib/serialize_utils.js")
+	var clc = require('cli-color')
+	var async = require("async")
+
+
 	var botCount = 10, activeBotCount = 0
 	var activeRegistryID = 100000000
 	var addToDbWorkQueue = []
 	var workingQueue = false
 	var objectsCommitedCount = 0, collectionsCompletedCount = 0
-
-	//mssDb 1604 test for a lot of MMS items w/ no component matches
-	
-	var archivesSeralize = require("../lib/serialize_archives_resources_utils.js")
-	var serializeUtils = require("../lib/serialize_utils.js")
-	var clc = require('cli-color')
 
 
 	setInterval(function(){
@@ -44,12 +48,21 @@ if (cluster.isMaster) {
 
 		activeRegistryID = enumerated.registryId
 
-		enumerated.objects.forEach(function(e){
-			//console.log(e.uri, "???????")
+		async.each(enumerated.objects, function(object, eachCallback) {
 			objectsCommitedCount++
+			eachCallback()
+		}, function(err){
+			workingQueue = false
 		})
 
-		workingQueue = false
+
+
+		// enumerated.objects.forEach(function(e){
+		// 	//console.log(e.uri, "???????")
+		// 	objectsCommitedCount++
+		// })
+
+		
 	},10)
 
 	
