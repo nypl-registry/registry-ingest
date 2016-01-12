@@ -1137,6 +1137,19 @@
             "titleInfo": "terms:Title",
             "topic": "terms:Topical"
         },
+         "mmsTorMap" :{
+            "three dimensional object" : "art",
+            "sound recording" : "aud",
+            "sound recording-musical" : "aud",
+            "sound recording-nonmusical" : "aud",
+            "cartographic" : "car",
+            "mixed material" : "mix",
+            "moving image" : "mov",
+            "software, multimedia" : "mul",
+            "notated music" : "not",
+            "still image": "img",
+            "text" : "txt"
+        },
         "noteMap": {
             "500": "General",
             "501": "With",
@@ -1187,6 +1200,7 @@
             "586": "Awards",
             "588": "Source of Description",
             "590": "Local Note",
+            "admin" : "Admin",
             "accrual method": "Accrual Method",
             "accrual policy": "Accrual Policy",
             "acqinfo": "Source of Acquisition",

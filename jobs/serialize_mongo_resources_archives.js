@@ -1,14 +1,59 @@
 "use strict"
 
 var cluster = require('cluster');
-var fs = require('fs');
+
 
 if (cluster.isMaster) {
 
-	var botCount = 10
+	var botCount = 10, activeBotCount = 0
+	var activeRegistryID = 100000000
+	var addToDbWorkQueue = []
+	var workingQueue = false
+	var objectsCommitedCount = 0, collectionsCompletedCount = 0
 
+	//mssDb 1604 test for a lot of MMS items w/ no component matches
 	
 	var archivesSeralize = require("../lib/serialize_archives_resources_utils.js")
+	var serializeUtils = require("../lib/serialize_utils.js")
+	var clc = require('cli-color')
+
+
+	setInterval(function(){
+
+		process.stdout.cursorTo(0)
+		process.stdout.write(clc.black.bgGreenBright("serialize Archives | bots: " + activeBotCount + " queue:" + addToDbWorkQueue.length + " objects: " + objectsCommitedCount + " id: " + activeRegistryID + " cols.: " +  collectionsCompletedCount))
+
+
+
+		if (workingQueue){
+			return false
+		}else{
+			workingQueue = true
+		}	
+
+		if (addToDbWorkQueue.length===0){
+			workingQueue = false
+			return false
+		}
+
+		var objects = addToDbWorkQueue[0]
+		addToDbWorkQueue.shift()
+
+
+		var enumerated = serializeUtils.enumerateObjects(objects,activeRegistryID)
+
+		activeRegistryID = enumerated.registryId
+
+		enumerated.objects.forEach(function(e){
+			//console.log(e.uri, "???????")
+			objectsCommitedCount++
+		})
+
+		workingQueue = false
+	},500)
+
+	
+
 
 
 
@@ -16,105 +61,58 @@ if (cluster.isMaster) {
 	archivesSeralize.returnAllCollectionIds(function(collectionIds){
 
 
+		var getWork = function(){
+			if (collectionIds.length == 0){
+				return "die"
+			}
+			var record = JSON.parse(JSON.stringify(collectionIds[0]._id))
+			//delete this one
+			collectionIds.shift()
+			return record
+		}
 
-		console.log(collectionIds)
+		var buildWorker = function(){
 
+			var worker = cluster.fork();
+			console.log('Spawing worker:',worker.id)
+
+
+			worker.on('message', function(msg) {
+				//asking for work
+				if (msg.request){					
+					worker.send({ work: getWork() })
+				}
+				//returning results
+				if (msg.results){
+					addToDbWorkQueue.push(msg.results)
+					collectionsCompletedCount++
+
+				}
+			})
+
+
+			//send the first one
+			worker.send({ work: getWork() })
+			activeBotCount++
+
+		}
+
+		for (var i = 1; i <= botCount; i++) {
+			setTimeout(function(){
+				buildWorker()
+			}, Math.floor(Math.random() * (10000 - 0)))
+		}
 
 	})
 
 
 
-
-
-
-	// mmsMappingStrategies.returnedMatchedMmsToArchivesCollections(function(err,results){
-
-	// 	//results = [results[0]]
-
-	// 	//console.log(results.length)
-
-	// 	var report = ""
-
-	// 	var getWork = function(){
-
-	// 		if (results.length == 0){
-	// 			return "die"
-	// 		}
-
-
-	// 		var record = JSON.parse(JSON.stringify(results[0]))
-
-	// 		//delete this one
-	// 		results.shift()
-
-
-	// 		return record
-
-	// 	}
-
-	// 	var buildWorker = function(){
-
-	// 		var worker = cluster.fork();
-	// 		console.log('Spawing worker:',worker.id)
-
-
-	// 		worker.on('message', function(msg) {
-
-
-	// 			//asking for work
-	// 			if (msg.request){
-					
-	// 				worker.send({ work: getWork() })
-	// 			}
-	// 			//returning results
-	// 			if (msg.results){
-
-	// 				report = report + msg.title + "\n"
-	// 				report = report + "\t" + "http://metadata.nypl.org/collection/" + msg.id + " --> " + "http://archives.nypl.org/collection/" + msg.archivesId + "\n"
-					
-	// 				var jsonRespone = JSON.stringify(msg.results,null,2).split("\n")
-	// 				for (var x in jsonRespone){
-
-	// 					report = report + "\t" + jsonRespone[x] + "\n"
-	// 				}
-
-	// 				report = report + "\n"
-					
-	// 				fs.writeFile("archives_mapping.txt", report, function(err) {
-						
-	// 					if(err) {
-	// 						return console.log(err);
-	// 					}
-
-
-	// 				})
-
-
-	// 			}
-
-	// 		})
-
-
-	// 		//send the first one
-	// 		worker.send({ work: getWork() })
-
-
-	// 	}
-
-	// 	for (var i = 1; i <= botCount; i++) {
-	// 		setTimeout(function(){
-	// 			buildWorker()
-	// 		}, Math.floor(Math.random() * (10000 - 0)))
-	// 	}
-	// })
-
-
-
-	// cluster.on('disconnect', function(worker, code, signal) {
-	// 	if (Object.keys(cluster.workers).length === 1){
-	// 		process.exit()
-	// 	}
-	// });
+	cluster.on('disconnect', function(worker, code, signal) {
+		activeBotCount = Object.keys(cluster.workers).length
+		if (Object.keys(cluster.workers).length === 1){
+			process.exit()
+		}
+	})
 
 
 
@@ -122,10 +120,10 @@ if (cluster.isMaster) {
 
 } else {
 
+	var archivesSeralize = require("../lib/serialize_archives_resources_utils.js")
 
 
-
-	var mmsMappingStrategies = require("../lib/mms_mapping_strategies.js")
+	// var mmsMappingStrategies = require("../lib/mms_mapping_strategies.js")
 
 
 
@@ -133,80 +131,21 @@ if (cluster.isMaster) {
 
 		if (msg.work){
 
-			console.log("Working:",msg.work.title)
-
-			// setTimeout(function(){
-
-			// 	process.send({ results: msg.work.title })
-			// 	process.send({ request: true })
-
-			// }, Math.floor(Math.random() * (2000 - 0))  )
-			
-			var record = msg.work
 
 
-			if (record==="die"){
+			if (msg.work==="die"){
 				console.log("No more work, I'm leaving. 😵")
 				cluster.worker.disconnect()
 				process.exit()
 			}
 
-			mmsMappingStrategies.returnMmsCollectionDetails(record,function(err,data){
+			// mmsMappingStrategies.returnMmsCollectionDetails(record,function(err,data){
 
-
-				console.log("-----------------")
-				console.log(record.title)
-				console.log(record._id,record.archivesCollectionDb)
-
-				console.log("containerCount",data.containerCount)
-				console.log("containerCountMatchedToArchives",data.containerCountMatchedToArchives)
-				console.log("itemCount",data.itemCount)
-				console.log("itemCountMatchedToArchives",data.itemCountMatchedToArchives)
-				console.log("seriesCount",data.seriesCount)
-				console.log("seriesCountMatchedToMms",data.seriesCountMatchedToMms)
-				console.log("componentCount",data.componentCount)
-				console.log("componentCountMatchedToMms",data.componentCountMatchedToMms)
-
-				data.collection = record
-
-				//it already has some sort of mapping from identifiers or from manual work, go with that.
-				if (data.itemCountMatchedToArchives >= 5 || data.containerCountMatchedToArchives >= 5){
-					process.send({ results: "Already has mapping", title: record.title, id: record.mmsDb, archivesId: record.archivesCollectionDb })
-					process.send({ request: true })
-					return true
-				}
-
-
-				//there is nothing to map the items to
-				if (data.componentCount == 0 ){
-					process.send({ results: "No Components to map to", title: record.title, id: record.mmsDb, archivesId: record.archivesCollectionDb })
-					process.send({ request: true })
-					return true
-				}
-
-				//normal course of action
-
-				var r = mmsMappingStrategies.mapHierarchyByContainers(data)
-
-				mmsMappingStrategies.updateHierarchyMatches(r, function(){
-
-
-					process.send({ results: r, title: record.title, id: record.mmsDb, archivesId: record.archivesCollectionDb })
-					process.send({ request: true })			
-
-					return true
-
-
-				})
-
-
-
-
+			archivesSeralize.serializeArchives(msg.work,function(objects){
+				process.send({ results: objects })
+				process.send({ request: true })	
 
 			})
-
-
-
 		}
 
 
