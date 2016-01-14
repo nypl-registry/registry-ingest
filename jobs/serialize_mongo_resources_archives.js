@@ -22,12 +22,12 @@ if (cluster.isMaster) {
 	var objectsCommitedCount = 0, collectionsCompletedCount = 0
 
 
+
+	//the data back from the bots gets added to this queue, it enumerates them with a registry ID and then commits them to the object store
 	setInterval(function(){
 
 		process.stdout.cursorTo(0)
 		process.stdout.write(clc.black.bgGreenBright("serialize Archives | bots: " + activeBotCount + " queue:" + addToDbWorkQueue.length + " objects: " + objectsCommitedCount + " id: " + activeRegistryID + " cols.: " +  collectionsCompletedCount))
-
-
 
 		if (workingQueue){
 			return false
@@ -50,19 +50,14 @@ if (cluster.isMaster) {
 
 		async.each(enumerated.objects, function(object, eachCallback) {
 			objectsCommitedCount++
+
+			console.log(object)
 			eachCallback()
 		}, function(err){
 			workingQueue = false
 		})
 
 
-
-		// enumerated.objects.forEach(function(e){
-		// 	//console.log(e.uri, "???????")
-		// 	objectsCommitedCount++
-		// })
-
-		
 	},10)
 
 	
@@ -123,7 +118,11 @@ if (cluster.isMaster) {
 	cluster.on('disconnect', function(worker, code, signal) {
 		activeBotCount = Object.keys(cluster.workers).length
 		if (Object.keys(cluster.workers).length === 1){
-			process.exit()
+			setInterval(function(){
+				if (addToDbWorkQueue.length===0){
+					process.exit()
+				}
+			},10000)			
 		}
 	})
 
