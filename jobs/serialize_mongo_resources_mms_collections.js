@@ -13,9 +13,10 @@ if (cluster.isMaster) {
 	var serializeUtils = require("../lib/serialize_utils.js")
 	var clc = require('cli-color')
 	var async = require("async")
+	var file = require("../lib/file.js")
 
 
-	var botCount = 3, activeBotCount = 0
+	var botCount = 4, activeBotCount = 0
 	var activeRegistryID = 100000000
 	var addToDbWorkQueue = []
 	var workingQueue = false
@@ -131,12 +132,18 @@ if (cluster.isMaster) {
 				if (msg.results){				
 
 
-					if (typeof msg.results == 'string'){
-						require('fs').readFile(msg.results, 'utf8', function (err, data) {
-						    if (err) throw err
-						    var obj = JSON.parse(data)
-							addToDbWorkQueue.push( obj)
+					if (typeof msg.results == 'string'){		
+						var c = 0, allObjects = []
+						file.streamJsonFile(msg.results, function(record,recordCb){
+							if (record){
+								console.log("Reading large file",c++)
+								allObjects.push(record)
+								recordCb()
+							}else{
+								addToDbWorkQueue.push( allObjects )
+							}							
 						})
+
 					}else{
 						addToDbWorkQueue.push( msg.results )
 					}
@@ -212,16 +219,25 @@ if (cluster.isMaster) {
 				//     process.send({ results: objects.splice(0,100) })
 				// }
 
-				if (objects.length>50000){
+				if (objects.length>500){
 
-					fs.writeFile("data/temp/"+msg.work+'.json', JSON.stringify(objects), function(err) {
-						if(err) console.log(err)	
 
-						process.send({ results: "data/temp/"+msg.work+'.json' })
-						process.send({ request: true })	
-							
-					
+					var file = fs.createWriteStream("data/temp/"+msg.work+'.ndjson')
+					file.on('error', function(err) { console.log(err) })
+					file.on('finish', function () {
+						process.send({ results: "data/temp/"+msg.work+'.ndjson' })
+						process.send({ request: true })							
 					})
+					var c = 0
+					objects.forEach(function(o) { console.log("Writing large file out",msg.work,c++,"/",objects.length); file.write( JSON.stringify(o) + '\n') })
+					file.end()
+
+
+				
+
+
+						
+					
 
 				}else{
 
