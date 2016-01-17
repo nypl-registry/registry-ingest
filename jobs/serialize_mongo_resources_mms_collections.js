@@ -85,9 +85,13 @@ if (cluster.isMaster) {
 
 	setInterval(function(){
 
+		for (var x in workLog){
+			workLog[x].workTime = Math.floor((Math.floor(Date.now() / 1000) - workLog[x].start) / 60) + " min."
+		}
+
 		console.log(JSON.stringify(workLog,null,2))
 
-	},10000)
+	},30000)
 
 
 
@@ -96,8 +100,6 @@ if (cluster.isMaster) {
 
 
 		collectionIds = shuffle(collectionIds)
-		
-
 
 
 
@@ -109,7 +111,7 @@ if (cluster.isMaster) {
 			//delete this one
 			collectionIds.shift()
 
-			workLog[workId] = record
+			workLog[workId] = { id: record, start: Math.floor(Date.now() / 1000) }
 
 			return record
 		}
