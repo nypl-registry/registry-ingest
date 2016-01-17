@@ -219,7 +219,7 @@ if (cluster.isMaster) {
 				//     process.send({ results: objects.splice(0,100) })
 				// }
 
-				if (objects.length>500){
+				if (objects.length>10000){
 
 
 					var file = fs.createWriteStream("data/temp/"+msg.work+'.ndjson')
