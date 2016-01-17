@@ -113,7 +113,7 @@ if (cluster.isMaster) {
 
 			workLog[workId] = { id: record, start: Math.floor(Date.now() / 1000) }
 
-			return 'da4687f0-cc71-0130-fb40-58d385a7b928'
+			return record
 		}
 
 		var buildWorker = function(){
