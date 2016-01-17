@@ -138,7 +138,7 @@ if (cluster.isMaster) {
 							addToDbWorkQueue.push( obj)
 						})
 					}else{
-						addToDbWorkQueue.push( JSON.parse(msg.results) )
+						addToDbWorkQueue.push( msg.results )
 					}
 
 					
@@ -212,7 +212,7 @@ if (cluster.isMaster) {
 				//     process.send({ results: objects.splice(0,100) })
 				// }
 
-				if (objects.length>500){
+				if (objects.length>50000){
 
 					fs.writeFile("data/temp/"+msg.work+'.json', JSON.stringify(objects), function(err) {
 						if(err) console.log(err)	
@@ -225,7 +225,7 @@ if (cluster.isMaster) {
 
 				}else{
 
-					process.send({ results: JSON.stringify(objects) })
+					process.send({ results: objects })
 					process.send({ request: true })	
 
 				}
