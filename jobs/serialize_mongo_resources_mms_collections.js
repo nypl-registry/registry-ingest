@@ -15,7 +15,7 @@ if (cluster.isMaster) {
 	var async = require("async")
 
 
-	var botCount = 1, activeBotCount = 0
+	var botCount = 5, activeBotCount = 0
 	var activeRegistryID = 100000000
 	var addToDbWorkQueue = []
 	var workingQueue = false
