@@ -1,7 +1,7 @@
 "use strict"
 
 var cluster = require('cluster');
-
+var fs = require("fs")
 
 if (cluster.isMaster) {
 
@@ -15,7 +15,7 @@ if (cluster.isMaster) {
 	var async = require("async")
 
 
-	var botCount = 4, activeBotCount = 0
+	var botCount = 1, activeBotCount = 0
 	var activeRegistryID = 100000000
 	var addToDbWorkQueue = []
 	var workingQueue = false
@@ -91,7 +91,7 @@ if (cluster.isMaster) {
 
 		console.log(JSON.stringify(workLog,null,2))
 
-	},30000)
+	},60000)
 
 
 
@@ -113,7 +113,7 @@ if (cluster.isMaster) {
 
 			workLog[workId] = { id: record, start: Math.floor(Date.now() / 1000) }
 
-			return record
+			return 'da4687f0-cc71-0130-fb40-58d385a7b928'
 		}
 
 		var buildWorker = function(){
@@ -130,7 +130,18 @@ if (cluster.isMaster) {
 				//returning results
 				if (msg.results){				
 
-					addToDbWorkQueue.push( JSON.parse(msg.results) )
+
+					if (typeof msg.results == 'string'){
+						require('fs').readFile(msg.results, 'utf8', function (err, data) {
+						    if (err) throw err
+						    var obj = JSON.parse(data)
+							addToDbWorkQueue.push( obj)
+						})
+					}else{
+						addToDbWorkQueue.push( JSON.parse(msg.results) )
+					}
+
+					
 					collectionsCompletedCount++
 				}
 			})
@@ -201,10 +212,25 @@ if (cluster.isMaster) {
 				//     process.send({ results: objects.splice(0,100) })
 				// }
 
+				if (objects.length>500){
+
+					fs.writeFile("data/temp/"+msg.work+'.json', JSON.stringify(objects), function(err) {
+						if(err) console.log(err)	
+
+						process.send({ results: "data/temp/"+msg.work+'.json' })
+						process.send({ request: true })	
+							
+					
+					})
+
+				}else{
+
+					process.send({ results: JSON.stringify(objects) })
+					process.send({ request: true })	
+
+				}
 
 
-				process.send({ results: JSON.stringify(objects) })
-				process.send({ request: true })	
 
 			})
 		}
