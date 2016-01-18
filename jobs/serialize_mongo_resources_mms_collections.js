@@ -74,12 +74,24 @@ if (cluster.isMaster) {
 
 		activeRegistryID = enumerated.registryId
 
-		async.each(enumerated.objects, function(object, eachCallback) {
-			objectsCommitedCount++
-			eachCallback()
-		}, function(err){
-			workingQueue = false
-		})
+		for (var x = 0; x < (enumerated.objects.length/1000) + 1; x++){
+
+			process.nextTick(function( ){
+				var batch = enumerated.objects.splice(0,1000)
+				if (batch.length>0){
+					mmsSeralize.getBulk(function(bulk){
+						batch.forEach(function(b){						
+							bulk.insert(b)
+						})
+						bulk.execute()
+					})
+				}
+			})
+		}
+
+
+		workingQueue = false
+	
 
 
 	},10)
