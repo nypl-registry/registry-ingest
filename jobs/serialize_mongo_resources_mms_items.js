@@ -177,12 +177,11 @@ if (cluster.isMaster) {
 
 
 
-
 	cluster.on('disconnect', function(worker, code, signal) {
 		activeBotCount = Object.keys(cluster.workers).length
-		if (Object.keys(cluster.workers).length === 1){
+		if (Object.keys(cluster.workers).length < 3){
 			setInterval(function(){
-				if (addToDbWorkQueue.length===0){
+				if (addToDbWorkQueue.length===0 && Object.keys(cluster.workers).length == 1){
 					process.exit()
 				}
 			},10000)			

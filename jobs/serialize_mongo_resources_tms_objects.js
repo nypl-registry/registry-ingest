@@ -8,13 +8,11 @@ if (cluster.isMaster) {
 
 	//mssDb 1604 test for a lot of MMS items w/ no component matches
 
-
-	var mmsSeralize = require("../lib/serialize_mms_resources_utils.js")
+	var tmsSeralize = require("../lib/serialize_tms_resources_utils.js")
 	var serializeUtils = require("../lib/serialize_utils.js")
 	var clc = require('cli-color')
 	var async = require("async")
 	var file = require("../lib/file.js")
-
 
 	var botCount = 10, activeBotCount = 0
 	var activeRegistryID = 100000000
@@ -25,36 +23,12 @@ if (cluster.isMaster) {
 	//1000 single item w/ capture no container
 
 
-	function shuffle(array) {
-	  var currentIndex = array.length, temporaryValue, randomIndex;
-
-	  // While there remain elements to shuffle...
-	  while (0 !== currentIndex) {
-
-	    // Pick a remaining element...
-	    randomIndex = Math.floor(Math.random() * currentIndex);
-	    currentIndex -= 1;
-
-	    // And swap it with the current element.
-	    temporaryValue = array[currentIndex];
-	    array[currentIndex] = array[randomIndex];
-	    array[randomIndex] = temporaryValue;
-	  }
-
-	  return array;
-	}
-
-
 	
-	// serializeUtils.buildTmsTriples(268691,function(){console.log("YEAHHH")})
-
-
-
 	//the data back from the bots gets added to this queue, it enumerates them with a registry ID and then commits them to the object store
 	setInterval(function(){
 
 		process.stdout.cursorTo(0)
-		process.stdout.write(clc.black.bgGreenBright("serialize MMS Collections | bots: " + activeBotCount + " queue:" + addToDbWorkQueue.length + " objects: " + objectsCommitedCount + " id: " + activeRegistryID + " cols.: " +  collectionsCompletedCount))
+		process.stdout.write(clc.black.bgGreenBright("serialize TMS Items | bots: " + activeBotCount + " queue:" + addToDbWorkQueue.length + " objects: " + objectsCommitedCount + " id: " + activeRegistryID + " cols.: " +  collectionsCompletedCount))
 
 		if (workingQueue){
 			return false
@@ -74,6 +48,9 @@ if (cluster.isMaster) {
 
 		activeRegistryID = enumerated.registryId
 
+		//console.log(JSON.stringify(enumerated.objects,null,2))
+
+
 		async.each(enumerated.objects, function(object, eachCallback) {
 			objectsCommitedCount++
 			eachCallback()
@@ -84,33 +61,18 @@ if (cluster.isMaster) {
 
 	},10)
 
-	setInterval(function(){
-
-		for (var x in workLog){
-			workLog[x].workTime = Math.floor((Math.floor(Date.now() / 1000) - workLog[x].start) / 60) + " min."
-		}
-
-		console.log(JSON.stringify(workLog,null,2))
-
-	},60000)
 
 
-
-
-	mmsSeralize.returnAllCollectionIds(function(collectionIds){
-
-
-		collectionIds = shuffle(collectionIds)
-
+	tmsSeralize.returnObjects(function(tmsObjectIds){
 
 
 		var getWork = function(workId){
-			if (collectionIds.length == 0){
+			if (tmsObjectIds.length == 0){
 				return "die"
 			}
-			var record = JSON.parse(JSON.stringify(collectionIds[0]._id))
+			var record = JSON.parse(JSON.stringify(tmsObjectIds[0]._id))
 			//delete this one
-			collectionIds.shift()
+			tmsObjectIds.shift()
 
 			workLog[workId] = { id: record, start: Math.floor(Date.now() / 1000) }
 
@@ -193,7 +155,7 @@ if (cluster.isMaster) {
 } else {
 //
 	
-	var mmsSeralize = require("../lib/serialize_mms_resources_utils.js")
+	var tmsSeralize = require("../lib/serialize_tms_resources_utils.js")
 
 	var processRecord = function(msg){
 
@@ -205,23 +167,10 @@ if (cluster.isMaster) {
 				process.exit()
 			}
 
-			// mmsMappingStrategies.returnMmsCollectionDetails(record,function(err,data){
-			console.log("Working",msg.work)
-			mmsSeralize.serializeMmsCollections(msg.work,function(objects){
 
-				// objects.forEach(function(o){
-				// 	process.send({ results: [objects] })
-				// })
-
-				//send chunks of 100
-				// while(objects.length) {
-				// 	console.log("Chunk")
-				//     process.send({ results: objects.splice(0,100) })
-				// }
+			tmsSeralize.serializeTmsObject(msg.work,function(objects){
 
 				if (objects.length>10000){
-
-
 					var file = fs.createWriteStream("data/temp/"+msg.work+'.ndjson')
 					file.on('error', function(err) { console.log(err) })
 					file.on('finish', function () {
@@ -231,35 +180,14 @@ if (cluster.isMaster) {
 					var c = 0
 					objects.forEach(function(o) { file.write( JSON.stringify(o) + '\n') })
 					file.end()
-
-
-				
-
-
-						
-					
-
 				}else{
-
 					process.send({ results: objects })
-					process.send({ request: true })	
-
+					process.send({ request: true })
 				}
-
-
 
 			})
 		}
-
-
 	}
-
-
-
 	process.on('message', processRecord)
-
-
-
-
 
 }
