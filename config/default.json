@@ -14,6 +14,13 @@
         "mongoIp": "shadowcat",
         "mongoPort": 27017
     },
+    "TripleStore": {
+        "mongoConnectURL" : "mongodb://tripleStore:27017/registry",
+        "mongoIp" : "tripleStore",
+        "mongoPort" : 27017,
+        "mongoDb" : "registry"
+    },
+
     "MMSDivisions": {
         "all": [
             "arn",
