@@ -16,7 +16,7 @@ if (cluster.isMaster) {
 	var file = require("../lib/file.js")
 
 
-	var botCount = 4, activeBotCount = 0
+	var botCount = 5, activeBotCount = 0
 	var activeRegistryID = 100000000
 	var addToDbWorkQueue = []
 	var workingQueue = false
