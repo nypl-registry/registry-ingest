@@ -136,7 +136,7 @@ if (cluster.isMaster) {
 						var c = 0, allObjects = []
 						file.streamJsonFile(msg.results, function(record,recordCb){
 							if (record){
-								console.log("Reading large file",c++)
+								//console.log("Reading large file",c++)
 								allObjects.push(record)
 								recordCb()
 							}else{
@@ -229,7 +229,7 @@ if (cluster.isMaster) {
 						process.send({ request: true })							
 					})
 					var c = 0
-					objects.forEach(function(o) { console.log("Writing large file out",msg.work,c++,"/",objects.length); file.write( JSON.stringify(o) + '\n') })
+					objects.forEach(function(o) { file.write( JSON.stringify(o) + '\n') })
 					file.end()
 
 
