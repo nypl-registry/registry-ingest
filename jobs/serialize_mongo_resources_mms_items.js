@@ -54,7 +54,7 @@ if (cluster.isMaster) {
 	setInterval(function(){
 
 		process.stdout.cursorTo(0)
-		process.stdout.write(clc.black.bgGreenBright("serialize MMS Collections | bots: " + activeBotCount + " queue:" + addToDbWorkQueue.length + " objects: " + objectsCommitedCount + " id: " + activeRegistryID + " cols.: " +  collectionsCompletedCount))
+		process.stdout.write(clc.black.bgGreenBright("serialize MMS Items | bots: " + activeBotCount + " queue:" + addToDbWorkQueue.length + " objects: " + objectsCommitedCount + " id: " + activeRegistryID + " cols.: " +  collectionsCompletedCount))
 
 		if (workingQueue){
 			return false
@@ -73,6 +73,9 @@ if (cluster.isMaster) {
 		var enumerated = serializeUtils.enumerateObjects(objects,activeRegistryID)
 
 		activeRegistryID = enumerated.registryId
+
+		//console.log(JSON.stringify(enumerated.objects,null,2))
+
 
 		async.each(enumerated.objects, function(object, eachCallback) {
 			objectsCommitedCount++
@@ -97,20 +100,20 @@ if (cluster.isMaster) {
 
 
 
-	mmsSeralize.returnAllCollectionIds(function(collectionIds){
+	mmsSeralize.returnAllItemCollectionIds(function(itemIds){
 
 
-		collectionIds = shuffle(collectionIds)
+		itemIds = shuffle(itemIds)
 
 
 
 		var getWork = function(workId){
-			if (collectionIds.length == 0){
+			if (itemIds.length == 0){
 				return "die"
 			}
-			var record = JSON.parse(JSON.stringify(collectionIds[0]._id))
+			var record = JSON.parse(JSON.stringify(itemIds[0]._id))
 			//delete this one
-			collectionIds.shift()
+			itemIds.shift()
 
 			workLog[workId] = { id: record, start: Math.floor(Date.now() / 1000) }
 
@@ -176,11 +179,6 @@ if (cluster.isMaster) {
 
 
 	cluster.on('disconnect', function(worker, code, signal) {
-
-		console.log('---------------disconnect--------------')
-		console.log(worker, code, signal)
-		workLog[worker.id.toString()].died = "DIED"
-
 		activeBotCount = Object.keys(cluster.workers).length
 		if (Object.keys(cluster.workers).length === 1){
 			setInterval(function(){
@@ -212,7 +210,7 @@ if (cluster.isMaster) {
 
 			// mmsMappingStrategies.returnMmsCollectionDetails(record,function(err,data){
 			console.log("Working",msg.work)
-			mmsSeralize.serializeMmsCollections(msg.work,function(objects){
+			mmsSeralize.serializeMmsCollections("ITEM"+msg.work,function(objects){
 
 				// objects.forEach(function(o){
 				// 	process.send({ results: [objects] })
