@@ -20,6 +20,8 @@ if (cluster.isMaster) {
 	var workingQueue = false
 	var objectsCommitedCount = 0, collectionsCompletedCount = 0
 	var workLog = {}
+	var bulkInsert = []
+	var bulkInsertLimit = 998
 	//1000 single item w/ capture no container
 
 
@@ -50,13 +52,28 @@ if (cluster.isMaster) {
 
 		//console.log(JSON.stringify(enumerated.objects,null,2))
 
-
-		async.each(enumerated.objects, function(object, eachCallback) {
-			objectsCommitedCount++
-			eachCallback()
-		}, function(err){
-			workingQueue = false
+		enumerated.objects.forEach(function(o){
+			bulkInsert.push(o)
 		})
+
+		if (bulkInsert.length>bulkInsertLimit){
+			console.log("bulkInsertbulkInsertbulkInsertbulkInsertbulkInsertbulkInsertbulkInsert")
+
+			tmsSeralize.getBulk(function(bulk){
+				bulkInsert.forEach(function(b){						
+					bulk.insert(b)
+				})
+				bulk.execute()
+				bulkInsert=[]
+				workingQueue = false
+			})
+		}else{
+			workingQueue = false
+		}
+
+
+		
+
 
 
 	},10)
@@ -140,8 +157,10 @@ if (cluster.isMaster) {
 	cluster.on('disconnect', function(worker, code, signal) {
 		activeBotCount = Object.keys(cluster.workers).length
 		if (Object.keys(cluster.workers).length < 3){
+			//start inserting everything even if it not in a 1000 batch
+			bulkInsertLimit = 0
 			setInterval(function(){
-				if (addToDbWorkQueue.length===0 && Object.keys(cluster.workers).length == 1){
+				if (addToDbWorkQueue.length===0 && bulkInsert.length === 0 && Object.keys(cluster.workers).length == 0){
 					process.exit()
 				}
 			},10000)			
