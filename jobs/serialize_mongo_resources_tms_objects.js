@@ -15,7 +15,7 @@ if (cluster.isMaster) {
 	var file = require("../lib/file.js")
 
 	var botCount = 11, activeBotCount = 0
-	var activeRegistryID = 100000000
+	var activeRegistryID = 103740506
 	var addToDbWorkQueue = []
 	var workingQueue = false
 	var objectsCommitedCount = 0, collectionsCompletedCount = 0
@@ -57,7 +57,7 @@ if (cluster.isMaster) {
 		})
 
 		if (bulkInsert.length>bulkInsertLimit){
-			
+
 			tmsSeralize.getBulk(function(bulk){
 				bulkInsert.forEach(function(b){						
 					bulk.insert(b)
