@@ -76,14 +76,24 @@ if (cluster.isMaster) {
 
 		//console.log(JSON.stringify(enumerated.objects,null,2))
 
+		for (var x = 0; x < (enumerated.objects.length/1000) + 1; x++){
 
-		async.each(enumerated.objects, function(object, eachCallback) {
-			objectsCommitedCount++
-			eachCallback()
-		}, function(err){
-			workingQueue = false
-		})
+			process.nextTick(function( ){
+				var batch = enumerated.objects.splice(0,1000)
+				if (batch.length>0){
+					mmsSeralize.getBulk(function(bulk){
+						batch.forEach(function(b){						
+							bulk.insert(b)
+						})
+						bulk.execute()
+					})
+				}
+			})
+		}
 
+
+		workingQueue = false
+	
 
 	},10)
 

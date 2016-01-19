@@ -81,22 +81,6 @@ if (cluster.isMaster) {
 	archivesSeralize.returnAllCollectionIds(function(collectionIds){
 
 
-		collectionIds.shift()
-		collectionIds.shift()
-		collectionIds.shift()
-		collectionIds.shift()
-		collectionIds.shift()
-		collectionIds.shift()
-		collectionIds.shift()
-		collectionIds.shift()
-		collectionIds.shift()
-		collectionIds.shift()
-		collectionIds.shift()
-		collectionIds.shift()
-		collectionIds.shift()
-		collectionIds.shift()
-
-
 		var getWork = function(){
 			if (collectionIds.length == 0){
 				return "die"
@@ -120,8 +104,27 @@ if (cluster.isMaster) {
 				}
 				//returning results
 				if (msg.results){
-					addToDbWorkQueue.push(msg.results)
+
+
+					if (typeof msg.results == 'string'){		
+						var c = 0, allObjects = []
+						file.streamJsonFile(msg.results, function(record,recordCb){
+							if (record){
+								//console.log("Reading large file",c++)
+								allObjects.push(record)
+								recordCb()
+							}else{
+								addToDbWorkQueue.push( allObjects )
+							}							
+						})
+
+					}else{
+						addToDbWorkQueue.push( msg.results )
+					}
+
+					
 					collectionsCompletedCount++
+
 
 				}
 			})
@@ -145,15 +148,14 @@ if (cluster.isMaster) {
 
 	cluster.on('disconnect', function(worker, code, signal) {
 		activeBotCount = Object.keys(cluster.workers).length
-		if (Object.keys(cluster.workers).length === 1){
+		if (Object.keys(cluster.workers).length < 3){
 			setInterval(function(){
-				if (addToDbWorkQueue.length===0){
+				if (addToDbWorkQueue.length===0 && Object.keys(cluster.workers).length == 1){
 					process.exit()
 				}
 			},10000)			
 		}
 	})
-
 
 
 	
@@ -182,8 +184,31 @@ if (cluster.isMaster) {
 			// mmsMappingStrategies.returnMmsCollectionDetails(record,function(err,data){
 
 			archivesSeralize.serializeArchives(msg.work,function(objects){
-				process.send({ results: objects })
-				process.send({ request: true })	
+
+
+				if (objects.length>10000){
+
+
+					var file = fs.createWriteStream("data/temp/archives"+msg.work+'.ndjson')
+					file.on('error', function(err) { console.log(err) })
+					file.on('finish', function () {
+						process.send({ results: "data/temp/archives"+msg.work+'.ndjson' })
+						process.send({ request: true })							
+					})
+					var c = 0
+					objects.forEach(function(o) { file.write( JSON.stringify(o) + '\n') })
+					file.end()
+
+
+				}else{
+
+					process.send({ results: objects })
+					process.send({ request: true })	
+
+				}
+
+
+
 
 			})
 		}
