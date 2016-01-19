@@ -5,7 +5,6 @@ var fs = require("fs")
 
 if (cluster.isMaster) {
 
-
 	//mssDb 1604 test for a lot of MMS items w/ no component matches
 
 
@@ -17,7 +16,7 @@ if (cluster.isMaster) {
 
 
 	var botCount = 10, activeBotCount = 0
-	var activeRegistryID = 101417881
+	var activeRegistryID = 101418822
 	var addToDbWorkQueue = []
 	var workingQueue = false
 	var objectsCommitedCount = 0, collectionsCompletedCount = 0
@@ -191,7 +190,7 @@ if (cluster.isMaster) {
 		activeBotCount = Object.keys(cluster.workers).length
 		if (Object.keys(cluster.workers).length < 3){
 			setInterval(function(){
-				if (addToDbWorkQueue.length===0 && Object.keys(cluster.workers).length == 1){
+				if (addToDbWorkQueue.length===0 && Object.keys(cluster.workers).length == 0){
 					process.exit()
 				}
 			},10000)			

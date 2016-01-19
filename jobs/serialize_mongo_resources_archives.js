@@ -150,7 +150,7 @@ if (cluster.isMaster) {
 		activeBotCount = Object.keys(cluster.workers).length
 		if (Object.keys(cluster.workers).length < 3){
 			setInterval(function(){
-				if (addToDbWorkQueue.length===0 && Object.keys(cluster.workers).length == 1){
+				if (addToDbWorkQueue.length===0 && Object.keys(cluster.workers).length == 0){
 					process.exit()
 				}
 			},10000)			
