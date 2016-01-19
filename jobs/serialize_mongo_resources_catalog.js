@@ -17,10 +17,14 @@ if (cluster.isMaster) {
 	var addToDbWorkQueue = []
 	var workingQueue = false
 	var objectsCommitedCount = 0
+	var bulkInsert = []
+	var bulkInsertLimit = 998
+
+
 	setInterval(function(){
 
 		process.stdout.cursorTo(0)
-		process.stdout.write(clc.black.bgGreenBright("serialize TMS Items | bots: " + activeBotCount + " queue:" + addToDbWorkQueue.length + " objects: " + objectsCommitedCount + " id: " + activeRegistryID + " bibs.: " +  countBibRecords))
+		process.stdout.write(clc.black.bgGreenBright("serialize Catalog Items | bots: " + activeBotCount + " queue:" + addToDbWorkQueue.length + " objects: " + objectsCommitedCount + " id: " + activeRegistryID + " bibs.: " +  countBibRecords))
 
 
 
@@ -42,23 +46,51 @@ if (cluster.isMaster) {
 
 		activeRegistryID = enumerated.registryId
 
-		//console.log(JSON.stringify(enumerated.objects,null,2))
-
 
 		async.each(enumerated.objects, function(object, eachCallback) {
 			objectsCommitedCount++
+			bulkInsert.push(object)
 			eachCallback()
 		}, function(err){
-			workingQueue = false
+
+
+			if (bulkInsert.length>bulkInsertLimit){
+				console.log("BULK")
+
+				serialize.getBulk(function(bulk){
+					bulkInsert.forEach(function(b){						
+						bulk.insert(b)
+					})
+					bulk.execute(function(err, result) {
+						if (err){
+							console.log(err)
+							console.log(err)
+							console.log(err)
+							console.log(err)
+							console.log(err)
+							console.log(err)
+							console.log(err)
+							console.log(err)
+
+						}
+
+					})
+
+
+					bulkInsert=[]
+					workingQueue = false
+				})
+
+
+			}else{
+				workingQueue = false
+			}
+
+			
 		})
 
 
 	},10)
-
-
-
-
-
 
 
 
@@ -84,9 +116,14 @@ if (cluster.isMaster) {
 						worker.on('message', function(msg) {
 
 							if (serialize.shadowCatResourceQueue[0]===null){
+								//drain the rest of the queue
+								bulkInsertLimit = 0
+
 								console.log("Sendiing QUIT msg",Object.keys(cluster.workers).length)
+								
 								//that is it, we've reached the end
 								worker.send({ quit: true })
+
 
 								setInterval(function(){
 									if (Object.keys(cluster.workers).length<2){
@@ -105,9 +142,24 @@ if (cluster.isMaster) {
 								//console.log("serialize.shadowCatResourceQueue.length:",serialize.shadowCatResourceQueue.length)
 								//they are asking for new work							
 								if (serialize.shadowCatResourceQueue.length>0){
-									var workItem = serialize.shadowCatResourceQueue.splice(0,1)
 
-									worker.send({ req: workItem })
+
+									
+									
+
+									if (addToDbWorkQueue.length>1000){
+
+										setTimeout(function(){
+											var workItem = serialize.shadowCatResourceQueue.splice(0,1)
+											worker.send({ req: workItem })
+										},1000)
+
+									}else{
+										var workItem = serialize.shadowCatResourceQueue.splice(0,1)
+										worker.send({ req: workItem })
+									}
+
+									
 								}else{
 									console.log("Nothing left to work in the queue!")
 									worker.send({ sleep: true })
@@ -195,69 +247,6 @@ if (cluster.isMaster) {
 			}
 		})
 
-		// if (msg.req[0].agents){
-		// 	if (msg.req[0].agents.length>0){
-
-		// 		var scAgents = msg.req[0].agents
-
-		// 		activeData = msg.req[0]
-
-		// 		async.eachSeries(scAgents, function(agent, eachCallback) {
-
-		// 			var aAgent = JSON.parse(JSON.stringify(agent))
-		// 			var newAgent = {}
-
-
-		// 			//we don't care about non VIAF in this pass
-		// 			if (aAgent.viaf){
-
-		// 				serializeGeneral.returnViafData(aAgent.viaf, function(viaf){
-
-		// 					serializeGeneral.returnAgentByViaf(aAgent.viaf, function(savedAgent){
-
-		// 						var updateAgent = serialize.mergeScAgentViafRegistryAgent(aAgent,viaf,savedAgent)
-		// 						updateAgent.useCount++
-		// 						updateAgent.source = "catalog"+msg.req[0].bnumber
-								
-		// 						if (updateAgent.nameControlled){
-		// 							updateAgent.nameControlled = updateAgent.nameControlled.trim() 
-		// 							serializeGeneral.addAgentByViaf(updateAgent,function(){
-		// 								eachCallback()
-		// 							})	
-		// 						}else{
-		// 							//If there is no controlled name we do not want to use it
-		// 							eachCallback()
-		// 						}
-		// 						process.send({ countTotal: true })			
-		// 					})
-		// 				})	
-		// 			}else{
-		// 				eachCallback()
-		// 			}			
-
-		// 		}, function(err){
-		// 		   	if (err) console.log(err)
-
-
-		// 		   	//done
-		// 			process.nextTick(function(){	
-		// 				process.send({ req: true })
-		// 			})		
-
-		// 		})
-
-		// 	}else{
-		// 	   	//done
-		// 		process.nextTick(function(){	
-		// 			process.send({ req: true })
-		// 		})
-		// 	}
-		// }else{
-		// 	console.log("Empty record.")
-		// 	process.nextTick(function(){	
-		// 		process.send({ req: true })
-		// 	})			
-		// }
 
 
 	} 
