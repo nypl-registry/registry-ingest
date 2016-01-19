@@ -14,7 +14,7 @@ if (cluster.isMaster) {
 	var async = require("async")
 	var file = require("../lib/file.js")
 
-	var botCount = 10, activeBotCount = 0
+	var botCount = 11, activeBotCount = 0
 	var activeRegistryID = 100000000
 	var addToDbWorkQueue = []
 	var workingQueue = false
@@ -57,8 +57,7 @@ if (cluster.isMaster) {
 		})
 
 		if (bulkInsert.length>bulkInsertLimit){
-			console.log("bulkInsertbulkInsertbulkInsertbulkInsertbulkInsertbulkInsertbulkInsert")
-
+			
 			tmsSeralize.getBulk(function(bulk){
 				bulkInsert.forEach(function(b){						
 					bulk.insert(b)
@@ -81,10 +80,6 @@ if (cluster.isMaster) {
 
 
 	tmsSeralize.returnObjects(function(tmsObjectIds){
-
-
-
-		tmsObjectIds = tmsObjectIds.splice(0,11000)
 
 
 		var getWork = function(workId){
@@ -147,6 +142,7 @@ if (cluster.isMaster) {
 				}
 			})
 
+			//TODO FIX First bot is DOA when spawned...
 
 			//send the first one
 			worker.send({ work: getWork(worker.id) })
@@ -175,6 +171,7 @@ if (cluster.isMaster) {
 			//start inserting everything even if it not in a 1000 batch
 			bulkInsertLimit = 0
 			setInterval(function(){
+				activeBotCount = Object.keys(cluster.workers).length
 				if (addToDbWorkQueue.length===0 && bulkInsert.length === 0 && Object.keys(cluster.workers).length == 0){
 					process.exit()
 				}
@@ -191,9 +188,27 @@ if (cluster.isMaster) {
 	
 	var tmsSeralize = require("../lib/serialize_tms_resources_utils.js")
 
+	var workingOn = ""
+
+	setInterval(function(){ 
+
+		if (workingOn===""){
+			console.log("No more work, I'm leaving. 😵")
+			cluster.worker.disconnect()
+			process.exit()			
+		}
+	},10000)
+
+
 	var processRecord = function(msg){
 
 		if (msg.work){
+
+			//console.log(cluster.worker.id,msg.work)
+
+			//if (msg.work.toString().trim() == "") msg.work = "die"
+
+			workingOn = JSON.parse(JSON.stringify(msg.work))
 
 			if (msg.work==="die"){
 				console.log("No more work, I'm leaving. 😵")
@@ -222,6 +237,8 @@ if (cluster.isMaster) {
 			})
 		}
 	}
+
 	process.on('message', processRecord)
+
 
 }
