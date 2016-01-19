@@ -13,7 +13,7 @@ if (cluster.isMaster) {
 	var serializeUtils = require("../lib/serialize_utils.js")
 	var clc = require('cli-color')
 	var async = require("async")
-
+	var file = require("../lib/file.js")
 
 	var botCount = 10, activeBotCount = 0
 	var activeRegistryID = 100000000
