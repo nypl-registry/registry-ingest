@@ -48,8 +48,6 @@ if (cluster.isMaster) {
 	
 	// serializeUtils.buildTmsTriples(268691,function(){console.log("YEAHHH")})
 
-
-
 	//the data back from the bots gets added to this queue, it enumerates them with a registry ID and then commits them to the object store
 	setInterval(function(){
 
@@ -79,7 +77,7 @@ if (cluster.isMaster) {
 		for (var x = 0; x < (enumerated.objects.length/1000) + 1; x++){
 
 			process.nextTick(function( ){
-				var batch = enumerated.objects.splice(0,1000)
+				var batch = enumerated.objects.splice(0,999)
 				if (batch.length>0){
 					mmsSeralize.getBulk(function(bulk){
 						batch.forEach(function(b){						
