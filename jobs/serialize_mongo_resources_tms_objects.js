@@ -83,6 +83,10 @@ if (cluster.isMaster) {
 	tmsSeralize.returnObjects(function(tmsObjectIds){
 
 
+
+		tmsObjectIds.splice(0,11000)
+
+
 		var getWork = function(workId){
 			if (tmsObjectIds.length == 0){
 				return "die"
