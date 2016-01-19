@@ -84,7 +84,7 @@ if (cluster.isMaster) {
 
 
 
-		tmsObjectIds.splice(0,11000)
+		tmsObjectIds = tmsObjectIds.splice(0,11000)
 
 
 		var getWork = function(workId){
@@ -108,8 +108,19 @@ if (cluster.isMaster) {
 
 			worker.on('message', function(msg) {
 				//asking for work
-				if (msg.request){					
-					worker.send({ work: getWork(worker.id) })
+				if (msg.request){
+
+					if (addToDbWorkQueue.length>1000){
+						//wait a sec to send to let the queue drain
+						setTimeout(function(){
+							worker.send({ work: getWork(worker.id) })
+						},1000)
+					}else{
+						worker.send({ work: getWork(worker.id) })
+					}
+					
+
+
 				}
 				//returning results
 				if (msg.results){				
