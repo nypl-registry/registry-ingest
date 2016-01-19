@@ -13,7 +13,7 @@ if (cluster.isMaster) {
 
 	var countBibRecords = 0, countTotal = 0, activeBotCount = 0
 
-	var activeRegistryID = 100000000
+	var activeRegistryID = 104026257
 	var addToDbWorkQueue = []
 	var workingQueue = false
 	var objectsCommitedCount = 0
@@ -64,14 +64,6 @@ if (cluster.isMaster) {
 					bulk.execute(function(err, result) {
 						if (err){
 							console.log(err)
-							console.log(err)
-							console.log(err)
-							console.log(err)
-							console.log(err)
-							console.log(err)
-							console.log(err)
-							console.log(err)
-
 						}
 
 					})

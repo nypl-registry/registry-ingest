@@ -83,7 +83,14 @@ if (cluster.isMaster) {
 						batch.forEach(function(b){						
 							bulk.insert(b)
 						})
-						bulk.execute()
+						bulk.execute(function(err, result) {
+							if (err){
+								console.log(err)
+							}
+
+						})
+
+
 					})
 				}
 			})
