@@ -1,7 +1,7 @@
 "use strict"
 
 var cluster = require('cluster');
-
+var fs = require("fs")
 
 if (cluster.isMaster) {
 
