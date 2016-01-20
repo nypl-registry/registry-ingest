@@ -16,7 +16,7 @@ if (cluster.isMaster) {
 
 
 	var botCount = 10, activeBotCount = 0
-	var activeRegistryID = 101418822
+	var activeRegistryID = 101419440
 	var addToDbWorkQueue = []
 	var workingQueue = false
 	var objectsCommitedCount = 0, collectionsCompletedCount = 0
