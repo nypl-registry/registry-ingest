@@ -98,7 +98,7 @@ if (cluster.isMaster) {
 				//console.log(serialize.shadowCatResourceQueue[0])
 
 				var spawnTimer = setInterval(function(){
-					if (Object.keys(cluster.workers).length==1){
+					if (Object.keys(cluster.workers).length==11){
 						clearInterval(spawnTimer)
 					}else{
 
@@ -164,6 +164,11 @@ if (cluster.isMaster) {
 
 							if (msg.countBibRecords) {
 								countBibRecords++
+								process.stdout.cursorTo(0)
+								process.stdout.write(clc.black.bgGreenBright("serialize Catalog Items | bots: " + activeBotCount + " bibs.: " +  countBibRecords))
+
+
+
 							}
 
 
@@ -202,7 +207,6 @@ if (cluster.isMaster) {
 	var activeData = null
 	var activeRegistryID = (7000000*cluster.worker.id)+100000000
 	var bulkInsert = []
-
 
 	setInterval(function(){
 		if (!workedInLastMin){
@@ -248,61 +252,27 @@ if (cluster.isMaster) {
 					bulkInsert.push(o)
 				})
 
-				if (bulkInsert.length>100){
-
-					var insertData = JSON.parse(JSON.stringify(bulkInsert))
-					bulkInsert = []
-					console.log(insertData.length)
-
-
-
-
+				if (bulkInsert.length>998){
+					serialize.getBulk(function(bulk){
+						bulkInsert.forEach(function(b){						
+							bulk.insert(b)
+						})
+						bulk.execute(function(err, result) {
+							if (err){
+								console.log(err)
+							}
+							bulkInsert=[]
+							process.send({ req: true })
+						})
+					})
+				}else{
+					process.send({ req: true })
 				}
 
-
-
-				// async.each(enumerated.objects, function(object, eachCallback) {					
-				// 	bulkInsert.push(object)
-				// 	eachCallback()
-				// }, function(err){
-					
-				// 	if (bulkInsert)
-
-				// 	serialize.getBulk(function(bulk){
-				// 		bulkInsert.forEach(function(b){						
-				// 			bulk.insert(b)
-				// 		})
-				// 		bulk.execute(function(err, result) {
-				// 			if (err){
-				// 				console.log(err)
-				// 			}
-
-				// 		})
-
-
-				// 		bulkInsert=[]
-				// 		workingQueue = false
-
-
-
-
-
-				// })
-
-
-
-
-
-				process.send({ req: true })
+				
 
 			}else{
-
-
 				process.send({ req: true })
-
-
-
-
 			}
 
 
