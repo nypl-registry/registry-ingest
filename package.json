@@ -27,6 +27,7 @@
     "csv": "^0.4.6",
     "csv-parse": "^1.0.0",
     "diacritics": "^1.2.2",
+    "elasticsearch": "^10.1.2",
     "json2csv": "^3.0.1",
     "keypress": "^0.2.1",
     "libxmljs": "^0.14.3",

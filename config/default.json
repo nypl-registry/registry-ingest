@@ -20,6 +20,9 @@
         "mongoPort" : 27017,
         "mongoDb" : "registry"
     },
+    "Elasticsearch": {
+        "host" : "123.456.789.123:9200"
+    },
 
     "MMSDivisions": {
         "all": [
