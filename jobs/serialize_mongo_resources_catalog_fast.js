@@ -109,7 +109,7 @@ if (cluster.isMaster) {
 
 							if (serialize.shadowCatResourceQueue[0]===null){
 								//drain the rest of the queue
-								bulkInsertLimit = 0
+								
 
 								console.log("Sendiing QUIT msg",Object.keys(cluster.workers).length)
 								
