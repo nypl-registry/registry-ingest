@@ -28,6 +28,7 @@ var files = [fastChronological,fastEvent,fastFormGenre,fastGeographic,fastTitle,
 
 var fastLookup = {}
 var sameAsLookup = {}
+var viafLookup = {}
 var count = 0
 
 
@@ -126,9 +127,10 @@ async.eachSeries(files, function(file, eachCallback) {
 				}		
 			}
 
-			
+			//delete from there because we don't want VIAF things in our FAST lookup			
 			if (file.search("FASTEvent")>-1){
 				if (fastLookup[x].sameAsViaf.length>0){
+					viafLookup[x] = JSON.parse(JSON.stringify(fastLookup[x]))
 					delete fastLookup[x]
 				}
 			}
@@ -167,7 +169,27 @@ async.eachSeries(files, function(file, eachCallback) {
 
 }, function(err){
 
-	console.log("Completed All Files")
+	console.log("Writing Out FAST TO VIAF")
+
+	//writeout the VIAF one
+	var fileOut = fs.createWriteStream("FAST_to_VIAF" + ".json");
+
+	fileOut.on('error', function(err) { console.lof(err) })
+	fileOut.on('finish', function() {
+
+		console.log("Completed All Files")
+
+	})
+
+	var writeCounter = 0
+	for (var x in viafLookup){
+		if (viafLookup[x].fast){
+			fileOut.write(JSON.stringify(viafLookup[x]) + "\n")
+			process.stdout.cursorTo(50)
+			process.stdout.write(clc.black.bgBlueBright("write file: " + ++writeCounter ))
+		}
+	}
+	fileOut.end();	
 
 })
 
