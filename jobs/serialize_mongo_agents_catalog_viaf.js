@@ -156,7 +156,7 @@ if (cluster.isMaster) {
 
 							serializeGeneral.returnAgentByViaf(aAgent.viaf, function(savedAgent){
 
-								var updateAgent = serialize.mergeScAgentViafRegistryAgent(aAgent,viaf,savedAgent)
+								var updateAgent = serialize.mergeScAgentViafRegistryAgent(aAgent,viaf,savedAgent,msg.req[0].bnumber)
 								updateAgent.useCount++
 								updateAgent.source = "catalog"+msg.req[0].bnumber
 								
