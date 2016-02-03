@@ -73,7 +73,7 @@ if (cluster.isMaster) {
 
 							process.stdout.clearLine()
 							process.stdout.cursorTo(0)
-							process.stdout.write("Agents VIAF | countBibRecords: " + countBibRecords + " countTotal: " + countTotal )
+							process.stdout.write("Agents | countBibRecords: " + countBibRecords + " countTotal: " + countTotal + " queue:(" + serialize.shadowCatAgentsQueue.length + ")" )
 
 							msg = null
 							workItem = null
