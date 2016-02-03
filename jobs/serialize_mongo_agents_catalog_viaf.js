@@ -24,7 +24,7 @@ if (cluster.isMaster) {
 				//console.log(serialize.shadowCatAgentsQueue[0])
 
 				var spawnTimer = setInterval(function(){
-					if (Object.keys(cluster.workers).length==10){
+					if (Object.keys(cluster.workers).length==12){
 						clearInterval(spawnTimer)
 					}else{
 
