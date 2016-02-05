@@ -7,20 +7,20 @@ var serializeTms = require("../lib/serialize_tms_agents_utils.js")
 
 
 
-//serializeArchives.populateArchivesAgentsCollctions(function(){
-//	serializeArchives.populateArchivesAgentsComponents(function(){
+serializeArchives.populateArchivesAgentsCollctions(function(){
+	serializeArchives.populateArchivesAgentsComponents(function(){
  		serializeTms.populateTmsAgents(function(){
-//			serializeMms.populateMmsAgentsCollections(function(){
- //				serializeMms.populateMmsAgentsContainers(function(){
-	//				serializeMms.populateMmsAgentsItems(function(){
-	//					console.log('Done');
-	//					process.exit()
-	//				})
-	//			})
-	//		})
+			serializeMms.populateMmsAgentsCollections(function(){
+ 				serializeMms.populateMmsAgentsContainers(function(){
+					serializeMms.populateMmsAgentsItems(function(){
+						console.log('Done');
+						process.exit()
+					})
+				})
+			})
  		})
-	//})
-//})
+	})
+})
 
 
 
