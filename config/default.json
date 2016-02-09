@@ -44,6 +44,7 @@
             "mmpc",
             "mss",
             "mus",
+            "mya",
             "nodiv",
             "nypla",
             "pbl",
@@ -133,6 +134,10 @@
             "mus": {
                 "name": "Music Division",
                 "processArchivesCollections": true
+            },
+            "mya": {
+                "name": "Reserve Film and Video Collection",
+                "processArchivesCollections": false
             },
             "nodiv": {
                 "name": "No Division",
@@ -1391,10 +1396,10 @@
             "mya21": "1002",
             "mya23": "1002",
             "myaos": "1123",
-            "myar": "1002",
-            "myar1": "1002",
-            "myarn": "1102",
-            "myarv": "1102",
+            "myar": "1131",
+            "myar1": "1131",
+            "myarn": "1131",
+            "myarv": "1131",
             "myas1": "1102",
             "myav3": "1002",
             "myd": "1121",
@@ -1569,6 +1574,7 @@
             "MMPC": "1128",
             "MSS": "1107",
             "MUS": "1123",
+            "MYA": "1131",
             "NYPLA": "1100",
             "PHG": "1111",
             "PRN": "1112",
