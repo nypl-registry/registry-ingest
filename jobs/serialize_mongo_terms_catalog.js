@@ -104,6 +104,7 @@ if (cluster.isMaster) {
 
 
 	var async = require("async")
+	var config = require("config")
 	var workedInLastMin = false
 	var activeData = null
 
@@ -116,7 +117,7 @@ if (cluster.isMaster) {
 	},60000)
 
 
-	var processAgent = function(msg) {
+	var processTerm = function(msg) {
 
 		workedInLastMin = true
 
@@ -151,7 +152,15 @@ if (cluster.isMaster) {
 					var aTerm = JSON.parse(JSON.stringify(term))
 					var newAgent = {}
 
+
+					if (config['BlacklistTerms'].indexOf(term.nameLocal) > -1 || config['BlacklistTerms'].indexOf(term.nameFast) > -1  ){
+						eachCallback()
+						return false
+					}
+
+
 					if (term.fast){
+
 
 
 						serializeGeneral.returnTermByFast(term.fast,function(termsRecord){
@@ -211,10 +220,7 @@ if (cluster.isMaster) {
 
 										})										
 
-									}
-									
-
-
+									}						
 
 
 								})
@@ -247,42 +253,7 @@ if (cluster.isMaster) {
 
 						})
 
-
-						
-
-
-
-					}
-
-
-
-
-					// //we don't care about non VIAF in this pass
-					// if (aTerm.viaf){
-
-					// 	serializeGeneral.returnViafData(aTerm.viaf, function(viaf){
-
-					// 		serializeGeneral.returnAgentByViaf(aTerm.viaf, function(savedAgent){
-
-					// 			var updateAgent = serialize.mergeScAgentViafRegistryAgent(aTerm,viaf,savedAgent)
-					// 			updateAgent.useCount++
-					// 			updateAgent.source = "catalog"+msg.req[0].bnumber
-								
-					// 			if (updateAgent.nameControlled){
-					// 				updateAgent.nameControlled = updateAgent.nameControlled.trim() 
-					// 				serializeGeneral.addAgentByViaf(updateAgent,function(){
-					// 					eachCallback()
-					// 				})	
-					// 			}else{
-					// 				//If there is no controlled name we do not want to use it
-					// 				eachCallback()
-					// 			}
-					// 			process.send({ countTotal: true })			
-					// 		})
-					// 	})	
-					// }else{
-					// 	eachCallback()
-					// }			
+					}			
 
 				}, function(err){
 				   	if (err) console.log(err)
@@ -312,7 +283,7 @@ if (cluster.isMaster) {
 	} 
 
 
-	process.on('message', processAgent)
+	process.on('message', processTerm)
 	process.send({ req: true });
 
 }

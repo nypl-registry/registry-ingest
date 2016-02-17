@@ -24,6 +24,8 @@
         "host" : "123.456.789.123:9200"
     },
 
+    "BlacklistTerms": ["Electronic books","Electronic book","Electronic Books","Facsimiles"],
+
     "MMSDivisions": {
         "all": [
             "arn",
