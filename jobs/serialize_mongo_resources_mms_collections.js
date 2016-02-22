@@ -96,25 +96,18 @@ if (cluster.isMaster) {
 	},10)
 
 	setInterval(function(){
-
 		for (var x in workLog){
 			workLog[x].workTime = Math.floor((Math.floor(Date.now() / 1000) - workLog[x].start) / 60) + " min."
 		}
-
 		console.log(JSON.stringify(workLog,null,2))
-
 	},60000)
 
 
 
 
 	mmsSeralize.returnAllCollectionIds(function(collectionIds){
-
-
 		collectionIds = shuffle(collectionIds)
-
-
-
+		
 		var getWork = function(workId){
 			if (collectionIds.length == 0){
 				return "die"
@@ -209,63 +202,38 @@ if (cluster.isMaster) {
 	var processRecord = function(msg){
 
 		if (msg.work){
-
 			if (msg.work==="die"){
 				console.log("No more work, I'm leaving. 😵")
 				cluster.worker.disconnect()
 				process.exit()
 			}
-
-			// mmsMappingStrategies.returnMmsCollectionDetails(record,function(err,data){
+			
 			console.log("Working",msg.work)
-			mmsSeralize.serializeMmsCollections(msg.work,function(objects){
-
-				// objects.forEach(function(o){
-				// 	process.send({ results: [objects] })
-				// })
-
-				//send chunks of 100
-				// while(objects.length) {
-				// 	console.log("Chunk")
-				//     process.send({ results: objects.splice(0,100) })
-				// }
-
-				if (objects.length>10000){
-
-
-					var file = fs.createWriteStream("data/temp/"+msg.work+'.ndjson')
-					file.on('error', function(err) { console.log(err) })
-					file.on('finish', function () {
-						process.send({ results: "data/temp/"+msg.work+'.ndjson' })
-						process.send({ request: true })							
+			mmsSeralize.countItemsInMmsCollection(msg.work,function(count){				
+				if (count<30000){					
+					mmsSeralize.serializeMmsCollections(msg.work,function(objects){
+						if (objects.length>10000){
+							var file = fs.createWriteStream("data/temp/"+msg.work+'.ndjson')
+							file.on('error', function(err) { console.log(err) })
+							file.on('finish', function () {
+								process.send({ results: "data/temp/"+msg.work+'.ndjson' })
+								process.send({ request: true })							
+							})
+							var c = 0
+							objects.forEach(function(o) { file.write( JSON.stringify(o) + '\n') })
+							file.end()	
+						}else{
+							process.send({ results: objects })
+							process.send({ request: true })	
+						}
 					})
-					var c = 0
-					objects.forEach(function(o) { file.write( JSON.stringify(o) + '\n') })
-					file.end()
-
-
-				
-
-
-						
-					
-
 				}else{
-
-					process.send({ results: objects })
-					process.send({ request: true })	
-
+					process.send({ request: true })
 				}
-
-
 
 			})
 		}
-
-
 	}
-
-
 
 	process.on('message', processRecord)
 
