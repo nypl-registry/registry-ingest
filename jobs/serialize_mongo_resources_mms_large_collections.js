@@ -117,20 +117,26 @@ serializeUtils.returnNextResourceUri(function(resourceUri){
 		// 	})
 		// })
 
-		collectionIds = [{_id: '51894d20-c52f-012f-657d-58d385a7bc34'}]
-		collectionIds = [{_id: '79d4a650-c52e-012f-67ad-58d385a7bc34'}]
+		//collectionIds = [{_id: '51894d20-c52f-012f-657d-58d385a7bc34'}]
+		//collectionIds = [{_id: '79d4a650-c52e-012f-67ad-58d385a7bc34'}]
+
+		//no bnumber match
+		//collectionIds = [{_id: '6a373d50-c5d3-012f-a6fb-58d385a7bc34'}]
+		
+		//bnumber match
+		//collectionIds = [{_id: 'f2aa95e0-c5da-012f-b9b4-58d385a7bc34'}]
 
 		
+
 		async.eachSeries(collectionIds,function(collectionUuid,callback){
 			collectionUuid = collectionUuid._id
 			mmsSeralize.countItemsInMmsCollection(collectionUuid,function(count){	
-				if (count>10000){
-					console.log("DO!",collectionUuid)
+				if (count>30000){
+					console.log("DO!",collectionUuid,count)
 					mmsSeralize.serializeMmsCollections(collectionUuid,function(objects,newResourceUri){
 
 						console.log("Done")
-
-						var file = fs.createWriteStream('test.jsonnd')
+						var file = fs.createWriteStream('test-' + collectionUuid  + '.jsonnd')
 						file.on('finish', function () {
 							callback()
 						})
