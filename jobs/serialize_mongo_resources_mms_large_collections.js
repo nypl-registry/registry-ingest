@@ -133,17 +133,22 @@ serializeUtils.returnNextResourceUri(function(resourceUri){
 			mmsSeralize.countItemsInMmsCollection(collectionUuid,function(count){	
 				if (count>30000){
 					console.log("DO!",collectionUuid,count)
+
+
 					mmsSeralize.serializeMmsCollections(collectionUuid,function(objects,newResourceUri){
 
-						console.log("Done")
+						console.log("Done with", collectionUuid)
 						var file = fs.createWriteStream('test-' + collectionUuid  + '.jsonnd')
 						file.on('finish', function () {
 							callback()
 						})
-						objects.forEach(function(o) { file.write( JSON.stringify(o) + '\n') })						
+						objects.forEach(function(o) { file.write( JSON.stringify(o) + '\n') })
+						file.end("\n")
 						resourceUri = newResourceUri
 						
-					},resourceUri)					
+					},resourceUri)	
+
+
 				}else{
 					callback()
 				}
